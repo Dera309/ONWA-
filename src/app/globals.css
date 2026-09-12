@@ -1,0 +1,237 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Google Fonts are loaded via <link> tags in layout.tsx <head>.
+  Using @import here causes Next.js to attempt a server-side fetch at build time,
+  which fails in restricted network environments. Browser <link> tags are non-blocking
+  and load fonts client-side only.
+*/
+
+/* Define CSS variables consumed by Tailwind fontFamily config */
+:root {
+  --font-bodoni: 'Bodoni Moda', 'Didot', 'Book Antiqua', Georgia, serif;
+  --font-manrope: 'Manrope', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+@layer base {
+  :root {
+    /* Lunar Noir Luxury - Light Theme (for accessibility) */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --surface: 0 0% 96.1%;
+    --surface-dim: 0 0% 87.8%;
+    --surface-bright: 0 0% 98%;
+    --surface-container-lowest: 0 0% 94%;
+    --surface-container-low: 270 0% 95%;
+    --surface-container: 0 0% 92%;
+    --surface-container-high: 0 0% 90%;
+    --surface-container-highest: 0 0% 85%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --tertiary: 0 0% 96.1%;
+    --tertiary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0px;
+  }
+
+  .dark {
+    /* Lunar Noir Luxury - Dark Theme (Default) */
+    --background: 0 0% 7.5%;
+    --foreground: 0 0% 88.6%;
+    --surface: 0 0% 7.5%;
+    --surface-dim: 0 0% 7.5%;
+    --surface-bright: 0 0% 22.4%;
+    --surface-container-lowest: 0 0% 5.5%;
+    --surface-container-low: 0 0% 10.6%;
+    --surface-container: 0 0% 12.2%;
+    --surface-container-high: 0 0% 16.5%;
+    --surface-container-highest: 0 0% 20.9%;
+    --primary: 0 0% 86.3%;
+    --primary-foreground: 0 0% 18.8%;
+    --secondary: 0 0% 77.6%;
+    --secondary-foreground: 0 0% 18.8%;
+    --tertiary: 0 0% 87.1%;
+    --tertiary-foreground: 0 0% 18.8%;
+    --muted: 0 0% 20.9%;
+    --muted-foreground: 0 0% 77.6%;
+    --accent: 0 0% 20.9%;
+    --accent-foreground: 0 0% 86.3%;
+    --card: 0 0% 7.5%;
+    --card-foreground: 0 0% 88.6%;
+    --border: 0 0% 56.5%;
+    --input: 0 0% 56.5%;
+    --ring: 0 0% 86.3%;
+    --radius: 0px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    @apply scroll-smooth;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-container;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-container-high;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-container-highest;
+  }
+}
+
+@layer utilities {
+  /* Text selection */
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+  
+  /* Focus styles */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
+  
+  /* Silver glow effect */
+  .silver-glow {
+    box-shadow: 0 0 30px rgba(192, 192, 196, 0.1);
+  }
+  
+  /* Glassmorphism */
+  .glass {
+    @apply backdrop-blur-xl bg-surface/40;
+  }
+  
+  /* Museum typography */
+  .museum-heading {
+    @apply font-serif tracking-tight;
+  }
+  
+  .museum-body {
+    @apply font-sans leading-relaxed;
+  }
+  
+  /* Label caps */
+  .label-caps {
+    @apply font-sans text-xs font-bold tracking-widest uppercase;
+  }
+  
+  /* Artwork matting */
+  .artwork-mat {
+    @apply p-4 bg-surface-container border border-border/20;
+  }
+  
+  /* Animation utilities */
+  .animate-in {
+    @apply animate-fade-in;
+  }
+  
+  .animate-in-up {
+    @apply animate-fade-in-up;
+  }
+  
+  .animate-slide-right {
+    @apply animate-slide-in-right;
+  }
+}
+
+/* Typography scale for luxury feel */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-serif;
+}
+
+/* Button base styles */
+button {
+  @apply focus-ring transition-all duration-200;
+}
+
+/* Link styles */
+a {
+  @apply transition-colors duration-200;
+}
+
+/* Image optimization */
+img {
+  @apply max-w-full h-auto;
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply animate-pulse bg-surface-container;
+}
+
+/* Hide scrollbar for horizontal scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================================================
+   ONWA MUSEUM DRM & ARTWORK PROTECTION
+   ========================================================================== */
+.protected-artwork-container {
+  position: relative;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+.protected-artwork-image {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+  pointer-events: none !important;
+}
+
+.artwork-capture-shielded {
+  filter: blur(50px) brightness(0.05) !important;
+  transition: filter 0.15s ease-in-out;
+}
+
+/* Prevent browser printing / Save to PDF of artwork & pages */
+@media print {
+  body {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  .protected-artwork-image,
+  .protected-artwork-container,
+  img {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
