@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { ObjectId } from 'mongodb';
 
 const prisma = new PrismaClient();
 
@@ -45,10 +44,9 @@ async function main() {
     console.log('Updated admin clerk ID');
   } else {
     console.log('No existing admin found, creating new admin record...');
-    // Create admin record with explicit ObjectId
+    // Create admin record
     const admin = await prisma.admin.create({
       data: {
-        id: new ObjectId().toString(),
         clerkId: 'user_3H0O4Un3kI9lH2adrPJFENLEe67',
         email: 'admin@onwa.art',
         name: 'Admin User',
