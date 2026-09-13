@@ -76,13 +76,6 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
             </Link>
           </Button>
           <SignedIn>
-            <Link
-              href="/admin/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="label-caps text-xs text-primary transition-colors block mb-3 px-3 py-1.5 rounded bg-primary/10 border border-primary/20 w-fit"
-            >
-              Curator's Office
-            </Link>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
@@ -127,12 +120,6 @@ export function Header() {
               </Link>
             </Button>
             <SignedIn>
-              <Link
-                href="/admin/dashboard"
-                className="label-caps text-xs text-muted-foreground hover:text-primary transition-colors px-2.5 py-1 rounded bg-muted/20 hover:bg-muted/40 border border-border/40"
-              >
-                Curator
-              </Link>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
             <SignedOut>

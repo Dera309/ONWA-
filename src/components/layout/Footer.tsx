@@ -78,11 +78,6 @@ export function Footer() {
             <h3 className="label-caps text-sm text-muted-foreground mb-6">Collector</h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/dashboard" className="museum-body text-body-md text-muted-foreground hover:text-primary transition-colors">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
                 <Link href="/archive" className="museum-body text-body-md text-muted-foreground hover:text-primary transition-colors">
                   Collector Archive
                 </Link>
