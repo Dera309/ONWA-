@@ -1,0 +1,192 @@
+import Link from "next/link";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { SignInButton, UserButton } from "@clerk/nextjs";
+import { prisma } from "@/lib/prisma";
+import { ShieldAlert, ArrowLeft, LayoutDashboard, Palette, FolderKanban, ShoppingBag, Users, BookOpen, Image, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { userId } = await auth();
+  const user = await currentUser();
+
+  // 1. Not signed in: show curator sign in screen
+  if (!userId || !user) {
+    return (
+      <main className="min-h-screen bg-background pt-24 pb-16 flex items-center justify-center px-4">
+        <div className="max-w-md w-full artwork-mat p-8 text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-8 h-8 text-primary" />
+          </div>
+          <div>
+            <p className="label-caps text-muted-foreground mb-2">Restricted Access</p>
+            <h1 className="museum-heading text-2xl text-primary mb-2">Curator's Office</h1>
+            <p className="museum-body text-sm text-muted-foreground">
+              Please sign in with your administrator account to manage the ONWA digital museum.
+            </p>
+          </div>
+          <div className="pt-4 space-y-3">
+            <SignInButton mode="modal">
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 label-caps py-2.5">
+                Sign In as Curator
+              </Button>
+            </SignInButton>
+            <Button variant="ghost" asChild className="w-full text-muted-foreground hover:text-primary text-sm">
+              <Link href="/">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Museum
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // 2. Check Admin role in database
+  let adminRecord = null;
+  const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase();
+
+  try {
+    // Check by clerkId first
+    adminRecord = await prisma.admin.findFirst({
+      where: { clerkId: userId },
+    });
+
+    // If not found by clerkId, check by email and auto-link clerkId
+    if (!adminRecord && userEmail) {
+      const adminByEmail = await prisma.admin.findFirst({
+        where: { email: { equals: userEmail, mode: "insensitive" } },
+      });
+
+      if (adminByEmail) {
+        adminRecord = await prisma.admin.update({
+          where: { id: adminByEmail.id },
+          data: { clerkId: userId },
+        });
+      }
+    }
+  } catch (err) {
+    console.error("[AdminLayout] Error verifying admin:", err);
+  }
+
+  // 3. If user signed in but not an authorized admin
+  if (!adminRecord) {
+    return (
+      <main className="min-h-screen bg-background pt-24 pb-16 flex items-center justify-center px-4">
+        <div className="max-w-md w-full artwork-mat p-8 text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-8 h-8 text-red-400" />
+          </div>
+          <div>
+            <p className="label-caps text-red-400 mb-2">Unauthorized</p>
+            <h1 className="museum-heading text-2xl text-primary mb-2">Access Restricted</h1>
+            <p className="museum-body text-sm text-muted-foreground mb-4">
+              You are signed in as <span className="text-foreground font-mono font-medium">{userEmail || userId}</span>, but this account does not have curator administrative privileges.
+            </p>
+            <p className="text-xs text-muted-foreground/80 bg-background/50 p-3 rounded border border-border/20">
+              To grant access, add this email to your admin list in the database or run <code className="text-primary">npx tsx scripts/setup-admin.ts {userId}</code>.
+            </p>
+          </div>
+          <div className="pt-2 flex items-center justify-center gap-4">
+            <UserButton afterSignOutUrl="/" />
+            <Button variant="secondary" asChild className="text-sm">
+              <Link href="/">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Museum
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // 4. Authorized Admin: Render complete admin layout with navigation
+  const navItems = [
+    { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { label: "Artworks", href: "/admin/artworks", icon: Palette },
+    { label: "Collections", href: "/admin/collections", icon: FolderKanban },
+    { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
+    { label: "Collectors", href: "/admin/collectors", icon: Users },
+    { label: "Journal", href: "/admin/journal", icon: BookOpen },
+    { label: "Media", href: "/admin/media", icon: Image },
+    { label: "Settings", href: "/admin/settings", icon: Settings },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {/* Top Admin Bar */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border/20">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-6">
+              <Link href="/admin/dashboard" className="flex items-center space-x-3">
+                <span className="museum-heading text-xl text-primary tracking-tight font-bold">ONWA</span>
+                <span className="label-caps text-xs px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary">Curator</span>
+              </Link>
+
+              {/* Navigation Links */}
+              <nav className="hidden lg:flex items-center space-x-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center space-x-1.5 px-3 py-1.5 text-xs label-caps rounded-md text-muted-foreground hover:text-primary hover:bg-muted/30 transition-colors"
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/"
+                className="hidden sm:flex items-center text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" /> View Public Site
+              </Link>
+              <div className="h-4 w-px bg-border/40 hidden sm:block" />
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-muted-foreground hidden md:inline-block">
+                  {adminRecord.name || adminRecord.email}
+                </span>
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Horizontal Navigation Scroll */}
+        <div className="lg:hidden border-t border-border/10 overflow-x-auto py-2 px-4 flex space-x-2 no-scrollbar">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center space-x-1.5 px-3 py-1 text-xs label-caps rounded-md bg-muted/20 text-muted-foreground hover:text-primary whitespace-nowrap"
+              >
+                <Icon className="w-3 h-3" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </header>
+
+      {/* Main Admin Content */}
+      <div className="flex-1">
+        {children}
+      </div>
+    </div>
+  );
+}
