@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { SignInButton, UserButton } from "@clerk/nextjs";
+import { SignIn, SignInButton, UserButton } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import { ShieldAlert, ArrowLeft, LayoutDashboard, Palette, FolderKanban, ShoppingBag, Users, BookOpen, Image, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,30 +27,36 @@ export default async function AdminLayout({
     console.warn("[AdminLayout] currentUser fetch notice:", err);
   }
 
-  // 1. Not signed in: show curator sign in screen
+  // 1. Not signed in: show embedded curator sign in
   if (!userId) {
     return (
-      <main className="min-h-screen bg-background pt-24 pb-16 flex items-center justify-center px-4">
-        <div className="max-w-md w-full artwork-mat p-8 text-center space-y-6">
-          <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-            <ShieldAlert className="w-8 h-8 text-primary" />
-          </div>
-          <div>
-            <p className="label-caps text-muted-foreground mb-2">Restricted Access</p>
-            <h1 className="museum-heading text-2xl text-primary mb-2">Curator's Office</h1>
-            <p className="museum-body text-sm text-muted-foreground">
-              Please sign in with your administrator account to manage the ONWA digital museum.
+      <main className="min-h-screen bg-background pt-20 pb-16 flex items-center justify-center px-4">
+        <div className="max-w-md w-full space-y-6">
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-2">
+              <ShieldAlert className="w-7 h-7 text-primary" />
+            </div>
+            <p className="label-caps text-xs text-muted-foreground">Curator's Office</p>
+            <h1 className="museum-heading text-2xl text-primary font-bold">Museum Administrator Access</h1>
+            <p className="museum-body text-xs text-muted-foreground">
+              Sign in with your curator administrator account (<span className="text-primary font-mono">chideraobia7@gmail.com</span>).
             </p>
           </div>
-          <div className="pt-4 space-y-3">
-            <SignInButton mode="modal">
-              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 label-caps py-2.5">
-                Sign In as Curator
-              </Button>
-            </SignInButton>
-            <Button variant="ghost" asChild className="w-full text-muted-foreground hover:text-primary text-sm">
+
+          <SignIn
+            appearance={{
+              elements: {
+                rootBox: "mx-auto w-full",
+                card: "bg-surface-container border border-border/20 shadow-xl",
+              },
+            }}
+            forceRedirectUrl="/admin/dashboard"
+          />
+
+          <div className="text-center pt-2">
+            <Button variant="ghost" asChild className="text-muted-foreground hover:text-primary text-xs">
               <Link href="/">
-                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Museum
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Back to Public Museum
               </Link>
             </Button>
           </div>
