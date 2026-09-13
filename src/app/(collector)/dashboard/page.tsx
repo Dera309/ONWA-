@@ -1,15 +1,25 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireCollector } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "Collector Dashboard | ONWA",
-  description: "Access your Collector Dashboard to view your archive, collected works, and future collection.",
+  title: "Collector | ONWA",
+  description: "ONWA Digital Museum Collector Portal",
 };
 
 export default async function CollectorDashboardPage() {
   const collector = await requireCollector();
+
+  const isCurator =
+    collector.email.toLowerCase() === "chideraobia7@gmail.com";
+
+  if (isCurator) {
+    redirect("/admin/dashboard");
+  } else {
+    redirect("/collected-works");
+  }
 
   let collectedCount = 0;
   let wishlistCount = 0;
