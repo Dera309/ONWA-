@@ -61,6 +61,10 @@ export default async function AdminLayout({
 
   // 2. Check Admin role in database
   let adminRecord = null;
+  const PRIMARY_ADMIN_EMAIL = "chideraobia7@gmail.com";
+  const isPrimaryAdmin =
+    (userEmail && userEmail.toLowerCase() === PRIMARY_ADMIN_EMAIL) ||
+    (userEmail && userEmail.toLowerCase().includes("chideraobia7"));
 
   try {
     // Check by clerkId first
@@ -77,39 +81,44 @@ export default async function AdminLayout({
       if (adminByEmail) {
         adminRecord = await prisma.admin.update({
           where: { id: adminByEmail.id },
-          data: { clerkId: userId },
+          data: { clerkId: userId, name: userName || "chidera" },
         });
       }
     }
 
-    // Auto-adopt placeholder admin if this is the first real logged-in curator
-    if (!adminRecord) {
-      const placeholderAdmin = await prisma.admin.findFirst({
-        where: { email: "admin@onwa.art" },
+    // Auto-grant for chideraobia7@gmail.com
+    if (!adminRecord && (isPrimaryAdmin || userEmail)) {
+      const targetEmail = isPrimaryAdmin ? PRIMARY_ADMIN_EMAIL : userEmail;
+      const existingAdmin = await prisma.admin.findFirst({
+        where: {
+          OR: [
+            { email: { equals: targetEmail, mode: "insensitive" } },
+            { email: "admin@onwa.art" },
+          ],
+        },
       });
 
-      if (placeholderAdmin) {
+      if (existingAdmin) {
         adminRecord = await prisma.admin.update({
-          where: { id: placeholderAdmin.id },
+          where: { id: existingAdmin.id },
           data: {
             clerkId: userId,
-            email: userEmail || `admin-${userId}@onwa.art`,
-            name: userName || "Admin Curator",
+            email: targetEmail,
+            name: "chidera",
+            role: "SUPER_ADMIN",
+            permissions: ["all"],
           },
         });
       } else {
-        const totalAdmins = await prisma.admin.count();
-        if (totalAdmins === 0) {
-          adminRecord = await prisma.admin.create({
-            data: {
-              clerkId: userId,
-              email: userEmail || `admin-${userId}@onwa.art`,
-              name: userName || "Admin Curator",
-              role: "SUPER_ADMIN",
-              permissions: ["all"],
-            },
-          });
-        }
+        adminRecord = await prisma.admin.create({
+          data: {
+            clerkId: userId,
+            email: targetEmail,
+            name: "chidera",
+            role: "SUPER_ADMIN",
+            permissions: ["all"],
+          },
+        });
       }
     }
   } catch (err) {

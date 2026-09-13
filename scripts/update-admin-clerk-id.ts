@@ -3,75 +3,58 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Checking for existing admin records...');
+  const email = 'chideraobia7@gmail.com';
+  const name = 'chidera';
 
-  // Check if admin exists by clerkId
-  const existingAdmin = await prisma.admin.findFirst({
-    where: {
-      clerkId: 'user_3H0O4Un3kI9lH2adrPJFENLEe67',
-    },
-  });
+  console.log(`Configuring primary admin for ${email} (${name})...`);
 
-  if (existingAdmin) {
-    console.log('Admin already exists with this clerk ID');
-    console.log('Admin record:', {
-      id: existingAdmin.id,
-      email: existingAdmin.email,
-      name: existingAdmin.name,
-      clerkId: existingAdmin.clerkId,
-      role: existingAdmin.role,
-    });
-    return;
-  }
+  // Find all existing admins
+  const admins = await prisma.admin.findMany();
+  console.log(`Found ${admins.length} admin record(s) in DB.`);
 
-  // Check if admin exists by email
-  const adminByEmail = await prisma.admin.findFirst({
-    where: {
-      email: 'admin@onwa.art',
-    },
-  });
+  let targetAdmin = admins.find(
+    (a) => a.email.toLowerCase() === email.toLowerCase()
+  );
 
-  if (adminByEmail) {
-    console.log('Found existing admin by email, updating clerk ID...');
-    await prisma.admin.update({
-      where: {
-        id: adminByEmail.id,
-      },
+  if (targetAdmin) {
+    targetAdmin = await prisma.admin.update({
+      where: { id: targetAdmin.id },
       data: {
-        clerkId: 'user_3H0O4Un3kI9lH2adrPJFENLEe67',
-      },
-    });
-    console.log('Updated admin clerk ID');
-  } else {
-    console.log('No existing admin found, creating new admin record...');
-    // Create admin record
-    const admin = await prisma.admin.create({
-      data: {
-        clerkId: 'user_3H0O4Un3kI9lH2adrPJFENLEe67',
-        email: 'admin@onwa.art',
-        name: 'Admin User',
+        email,
+        name,
         role: 'SUPER_ADMIN',
         permissions: ['all'],
       },
     });
-
-    console.log('Created admin record:', admin.email);
+    console.log('✅ Updated admin record:', targetAdmin);
+  } else if (admins.length > 0) {
+    // Update the first admin record to be chideraobia7@gmail.com
+    targetAdmin = await prisma.admin.update({
+      where: { id: admins[0].id },
+      data: {
+        email,
+        name,
+        role: 'SUPER_ADMIN',
+        permissions: ['all'],
+      },
+    });
+    console.log('✅ Replaced previous admin with primary admin:', targetAdmin);
+  } else {
+    // Create new
+    targetAdmin = await prisma.admin.create({
+      data: {
+        clerkId: 'admin_chidera',
+        email,
+        name,
+        role: 'SUPER_ADMIN',
+        permissions: ['all'],
+      },
+    });
+    console.log('✅ Created primary admin record:', targetAdmin);
   }
 
-  // Verify the update
-  const updatedAdmin = await prisma.admin.findFirst({
-    where: {
-      clerkId: 'user_3H0O4Un3kI9lH2adrPJFENLEe67',
-    },
-  });
-
-  console.log('Admin record:', {
-    id: updatedAdmin?.id,
-    email: updatedAdmin?.email,
-    name: updatedAdmin?.name,
-    clerkId: updatedAdmin?.clerkId,
-    role: updatedAdmin?.role,
-  });
+  const finalAdmins = await prisma.admin.findMany();
+  console.log('Current Admin(s) in Database:', finalAdmins);
 }
 
 main()

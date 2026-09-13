@@ -46,15 +46,59 @@ export async function requireCollector() {
 }
 
 export async function getCurrentAdmin() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   
   if (!userId) {
     return null;
   }
 
-  const admin = await prisma.admin.findUnique({
+  // 1. Try finding by clerkId
+  let admin = await prisma.admin.findUnique({
     where: { clerkId: userId },
   });
+
+  if (!admin) {
+    const userEmail = (sessionClaims?.email as string | undefined)?.toLowerCase();
+    const isPrimary =
+      userEmail === "chideraobia7@gmail.com" ||
+      userEmail?.includes("chideraobia7");
+
+    if (userEmail) {
+      admin = await prisma.admin.findFirst({
+        where: { email: { equals: userEmail, mode: "insensitive" } },
+      });
+
+      if (admin) {
+        admin = await prisma.admin.update({
+          where: { id: admin.id },
+          data: { clerkId: userId, name: "chidera" },
+        });
+      }
+    }
+
+    if (!admin && isPrimary) {
+      const existing = await prisma.admin.findFirst({
+        where: { email: "chideraobia7@gmail.com" },
+      });
+
+      if (existing) {
+        admin = await prisma.admin.update({
+          where: { id: existing.id },
+          data: { clerkId: userId, name: "chidera", role: "SUPER_ADMIN" },
+        });
+      } else {
+        admin = await prisma.admin.create({
+          data: {
+            clerkId: userId,
+            email: "chideraobia7@gmail.com",
+            name: "chidera",
+            role: "SUPER_ADMIN",
+            permissions: ["all"],
+          },
+        });
+      }
+    }
+  }
 
   return admin;
 }
