@@ -4,6 +4,7 @@ import { SignInButton, UserButton } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import { ShieldAlert, ArrowLeft, LayoutDashboard, Palette, FolderKanban, ShoppingBag, Users, BookOpen, Image, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ClaimAdminButton } from "@/components/admin/ClaimAdminButton";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +13,22 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
-  const user = await currentUser();
+  const { userId, sessionClaims } = await auth();
+  let userEmail = (sessionClaims?.email as string | undefined) || "";
+  let userName = "";
+
+  try {
+    const user = await currentUser();
+    if (user) {
+      if (!userEmail) userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase() || "";
+      userName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    }
+  } catch (err) {
+    console.warn("[AdminLayout] currentUser fetch notice:", err);
+  }
 
   // 1. Not signed in: show curator sign in screen
-  if (!userId || !user) {
+  if (!userId) {
     return (
       <main className="min-h-screen bg-background pt-24 pb-16 flex items-center justify-center px-4">
         <div className="max-w-md w-full artwork-mat p-8 text-center space-y-6">
@@ -49,7 +61,6 @@ export default async function AdminLayout({
 
   // 2. Check Admin role in database
   let adminRecord = null;
-  const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase();
 
   try {
     // Check by clerkId first
@@ -72,7 +83,7 @@ export default async function AdminLayout({
     }
 
     // Auto-adopt placeholder admin if this is the first real logged-in curator
-    if (!adminRecord && userEmail) {
+    if (!adminRecord) {
       const placeholderAdmin = await prisma.admin.findFirst({
         where: { email: "admin@onwa.art" },
       });
@@ -82,8 +93,8 @@ export default async function AdminLayout({
           where: { id: placeholderAdmin.id },
           data: {
             clerkId: userId,
-            email: userEmail,
-            name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Admin Curator",
+            email: userEmail || `admin-${userId}@onwa.art`,
+            name: userName || "Admin Curator",
           },
         });
       } else {
@@ -92,8 +103,8 @@ export default async function AdminLayout({
           adminRecord = await prisma.admin.create({
             data: {
               clerkId: userId,
-              email: userEmail,
-              name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Admin Curator",
+              email: userEmail || `admin-${userId}@onwa.art`,
+              name: userName || "Admin Curator",
               role: "SUPER_ADMIN",
               permissions: ["all"],
             },
@@ -110,26 +121,26 @@ export default async function AdminLayout({
     return (
       <main className="min-h-screen bg-background pt-24 pb-16 flex items-center justify-center px-4">
         <div className="max-w-md w-full artwork-mat p-8 text-center space-y-6">
-          <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
-            <ShieldAlert className="w-8 h-8 text-red-400" />
+          <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <p className="label-caps text-red-400 mb-2">Unauthorized</p>
-            <h1 className="museum-heading text-2xl text-primary mb-2">Access Restricted</h1>
+            <p className="label-caps text-muted-foreground mb-2">Curator Setup</p>
+            <h1 className="museum-heading text-2xl text-primary mb-2">Activate Curator Office</h1>
             <p className="museum-body text-sm text-muted-foreground mb-4">
-              You are signed in as <span className="text-foreground font-mono font-medium">{userEmail || userId}</span>, but this account does not have curator administrative privileges.
-            </p>
-            <p className="text-xs text-muted-foreground/80 bg-background/50 p-3 rounded border border-border/20">
-              To grant access, add this email to your admin list in the database or run <code className="text-primary">npx tsx scripts/setup-admin.ts {userId}</code>.
+              You are signed in as <span className="text-foreground font-mono font-medium">{userEmail || userId}</span>. Click below to activate full curator administrative privileges for this account.
             </p>
           </div>
-          <div className="pt-2 flex items-center justify-center gap-4">
-            <UserButton afterSignOutUrl="/" />
-            <Button variant="secondary" asChild className="text-sm">
-              <Link href="/">
-                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Museum
-              </Link>
-            </Button>
+          <div className="pt-2 space-y-3">
+            <ClaimAdminButton />
+            <div className="flex items-center justify-center gap-4 pt-2">
+              <UserButton afterSignOutUrl="/" />
+              <Button variant="secondary" asChild className="text-sm">
+                <Link href="/">
+                  <ArrowLeft className="w-4 h-4 mr-2" /> Back to Museum
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </main>

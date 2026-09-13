@@ -37,8 +37,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/collections/(.*)",
   "/api/moon-cycles",
   "/api/moon-cycles/(.*)",
-  "/api/admin/artworks",
-  "/api/admin/artworks/(.*)",
+  "/api/admin/(.*)",
   "/api/webhooks/(.*)",
   "/(.*)\\.(.*)",
 ]);
