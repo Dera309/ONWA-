@@ -70,6 +70,37 @@ export default async function AdminLayout({
         });
       }
     }
+
+    // Auto-adopt placeholder admin if this is the first real logged-in curator
+    if (!adminRecord && userEmail) {
+      const placeholderAdmin = await prisma.admin.findFirst({
+        where: { email: "admin@onwa.art" },
+      });
+
+      if (placeholderAdmin) {
+        adminRecord = await prisma.admin.update({
+          where: { id: placeholderAdmin.id },
+          data: {
+            clerkId: userId,
+            email: userEmail,
+            name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Admin Curator",
+          },
+        });
+      } else {
+        const totalAdmins = await prisma.admin.count();
+        if (totalAdmins === 0) {
+          adminRecord = await prisma.admin.create({
+            data: {
+              clerkId: userId,
+              email: userEmail,
+              name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Admin Curator",
+              role: "SUPER_ADMIN",
+              permissions: ["all"],
+            },
+          });
+        }
+      }
+    }
   } catch (err) {
     console.error("[AdminLayout] Error verifying admin:", err);
   }

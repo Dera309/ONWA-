@@ -15,9 +15,10 @@ export default async function CollectorDashboardPage() {
   let wishlistCount = 0;
   let totalSpent = 0;
   let recentOrders: any[] = [];
+  let isAdmin = false;
 
   try {
-    const [licenseCount, wishCount, orders] = await Promise.all([
+    const [licenseCount, wishCount, orders, adminRecord] = await Promise.all([
       prisma.license.count({
         where: { collectorId: collector.id, active: true, revoked: false },
       }),
@@ -30,12 +31,21 @@ export default async function CollectorDashboardPage() {
         take: 3,
         include: { items: true },
       }),
+      prisma.admin.findFirst({
+        where: {
+          OR: [
+            { clerkId: collector.clerkId },
+            { email: { equals: collector.email, mode: "insensitive" } },
+          ],
+        },
+      }),
     ]);
 
     collectedCount = licenseCount;
     wishlistCount = wishCount;
     recentOrders = orders;
     totalSpent = orders.reduce((sum, o) => sum + o.total, 0);
+    isAdmin = !!adminRecord;
   } catch (err) {
     console.error("[CollectorDashboard] Error fetching stats:", err);
   }
@@ -43,6 +53,24 @@ export default async function CollectorDashboardPage() {
   return (
     <main className="min-h-screen bg-background pt-20">
       <div className="container mx-auto max-w-7xl px-4 py-16">
+        {isAdmin && (
+          <div className="mb-8 p-4 rounded bg-primary/10 border border-primary/30 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="text-xl">🏛️</span>
+              <div>
+                <p className="text-sm font-semibold text-primary">Curator Administrator</p>
+                <p className="text-xs text-muted-foreground">You have full curator access to manage artworks, collections, and museum operations.</p>
+              </div>
+            </div>
+            <Link
+              href="/admin/dashboard"
+              className="inline-flex items-center px-4 py-2 text-xs font-semibold label-caps bg-primary text-primary-foreground hover:bg-primary/90 rounded transition-colors"
+            >
+              Curator Dashboard →
+            </Link>
+          </div>
+        )}
+
         {/* Dashboard Header */}
         <div className="mb-12">
           <h1 className="museum-heading text-headline-lg text-primary mb-4">
