@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Menu, X, Moon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserButton, SignInButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 
 function NavigationItems({ pathname }: { pathname: string }) {
   const navigation = [
@@ -41,6 +41,9 @@ function NavigationItems({ pathname }: { pathname: string }) {
 }
 
 function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pathname: string; mobileMenuOpen: boolean; setMobileMenuOpen: (open: boolean) => void }) {
+  const { user } = useUser();
+  const isCurator = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === "chideraobia7@gmail.com";
+
   const navigation = [
     { name: "Museum", href: "/museum" },
     { name: "Gallery", href: "/gallery" },
@@ -76,13 +79,15 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
             </Link>
           </Button>
           <SignedIn>
-            <Link
-              href="/admin/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="label-caps text-xs text-primary transition-colors block mb-3 px-3 py-1.5 rounded bg-primary/10 border border-primary/20 w-fit"
-            >
-              Curator's Office
-            </Link>
+            {isCurator && (
+              <Link
+                href="/admin/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="label-caps text-xs text-primary transition-colors block mb-3 px-3 py-1.5 rounded bg-primary/10 border border-primary/20 w-fit"
+              >
+                Curator's Office
+              </Link>
+            )}
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
@@ -101,6 +106,8 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
 export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useUser();
+  const isCurator = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === "chideraobia7@gmail.com";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
@@ -127,12 +134,14 @@ export function Header() {
               </Link>
             </Button>
             <SignedIn>
-              <Link
-                href="/admin/dashboard"
-                className="label-caps text-xs text-muted-foreground hover:text-primary transition-colors px-2.5 py-1 rounded bg-muted/20 hover:bg-muted/40 border border-border/40"
-              >
-                Curator
-              </Link>
+              {isCurator && (
+                <Link
+                  href="/admin/dashboard"
+                  className="label-caps text-xs text-primary hover:text-primary transition-colors px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 border border-primary/30 font-medium"
+                >
+                  Curator
+                </Link>
+              )}
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
             <SignedOut>

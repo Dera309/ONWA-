@@ -69,93 +69,68 @@ export default async function AdminLayout({
   let adminRecord = null;
   const PRIMARY_ADMIN_EMAIL = "chideraobia7@gmail.com";
   const isPrimaryAdmin =
-    (userEmail && userEmail.toLowerCase() === PRIMARY_ADMIN_EMAIL) ||
-    (userEmail && userEmail.toLowerCase().includes("chideraobia7"));
+    userEmail && userEmail.toLowerCase() === PRIMARY_ADMIN_EMAIL;
 
   try {
-    // Check by clerkId first
-    adminRecord = await prisma.admin.findFirst({
-      where: { clerkId: userId },
-    });
-
-    // If not found by clerkId, check by email and auto-link clerkId
-    if (!adminRecord && userEmail) {
-      const adminByEmail = await prisma.admin.findFirst({
-        where: { email: { equals: userEmail, mode: "insensitive" } },
+    if (isPrimaryAdmin) {
+      // Find or create admin for chideraobia7@gmail.com
+      adminRecord = await prisma.admin.findFirst({
+        where: { email: { equals: PRIMARY_ADMIN_EMAIL, mode: "insensitive" } },
       });
 
-      if (adminByEmail) {
-        adminRecord = await prisma.admin.update({
-          where: { id: adminByEmail.id },
-          data: { clerkId: userId, name: userName || "chidera" },
-        });
-      }
-    }
-
-    // Auto-grant for chideraobia7@gmail.com
-    if (!adminRecord && (isPrimaryAdmin || userEmail)) {
-      const targetEmail = isPrimaryAdmin ? PRIMARY_ADMIN_EMAIL : userEmail;
-      const existingAdmin = await prisma.admin.findFirst({
-        where: {
-          OR: [
-            { email: { equals: targetEmail, mode: "insensitive" } },
-            { email: "admin@onwa.art" },
-          ],
-        },
-      });
-
-      if (existingAdmin) {
-        adminRecord = await prisma.admin.update({
-          where: { id: existingAdmin.id },
-          data: {
-            clerkId: userId,
-            email: targetEmail,
-            name: "chidera",
-            role: "SUPER_ADMIN",
-            permissions: ["all"],
-          },
-        });
+      if (adminRecord) {
+        if (adminRecord.clerkId !== userId) {
+          adminRecord = await prisma.admin.update({
+            where: { id: adminRecord.id },
+            data: { clerkId: userId, name: "chidera" },
+          });
+        }
       } else {
         adminRecord = await prisma.admin.create({
           data: {
             clerkId: userId,
-            email: targetEmail,
+            email: PRIMARY_ADMIN_EMAIL,
             name: "chidera",
             role: "SUPER_ADMIN",
             permissions: ["all"],
           },
         });
       }
+    } else if (userId) {
+      // Check if user is registered in admin table
+      adminRecord = await prisma.admin.findFirst({
+        where: { clerkId: userId },
+      });
     }
   } catch (err) {
     console.error("[AdminLayout] Error verifying admin:", err);
   }
 
-  // 3. If user signed in but not an authorized admin
+  // 3. If user signed in but not authorized
   if (!adminRecord) {
     return (
       <main className="min-h-screen bg-background pt-24 pb-16 flex items-center justify-center px-4">
         <div className="max-w-md w-full artwork-mat p-8 text-center space-y-6">
-          <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-            <ShieldAlert className="w-8 h-8 text-primary" />
+          <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-8 h-8 text-red-400" />
           </div>
           <div>
-            <p className="label-caps text-muted-foreground mb-2">Curator Setup</p>
-            <h1 className="museum-heading text-2xl text-primary mb-2">Activate Curator Office</h1>
+            <p className="label-caps text-red-400 mb-2">Access Denied</p>
+            <h1 className="museum-heading text-2xl text-primary mb-2">Curator's Office Restricted</h1>
             <p className="museum-body text-sm text-muted-foreground mb-4">
-              You are signed in as <span className="text-foreground font-mono font-medium">{userEmail || userId}</span>. Click below to activate full curator administrative privileges for this account.
+              Access to this museum management portal is restricted exclusively to the head curator (<span className="text-primary font-mono font-medium">chideraobia7@gmail.com</span>).
+            </p>
+            <p className="text-xs text-muted-foreground/80 bg-background/50 p-3 rounded border border-border/20">
+              You are currently signed in as <span className="font-mono text-foreground font-semibold">{userEmail || userId}</span>.
             </p>
           </div>
-          <div className="pt-2 space-y-3">
-            <ClaimAdminButton />
-            <div className="flex items-center justify-center gap-4 pt-2">
-              <UserButton afterSignOutUrl="/" />
-              <Button variant="secondary" asChild className="text-sm">
-                <Link href="/">
-                  <ArrowLeft className="w-4 h-4 mr-2" /> Back to Museum
-                </Link>
-              </Button>
-            </div>
+          <div className="pt-2 flex items-center justify-center gap-4">
+            <UserButton afterSignOutUrl="/" />
+            <Button variant="secondary" asChild className="text-sm">
+              <Link href="/">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Museum
+              </Link>
+            </Button>
           </div>
         </div>
       </main>
