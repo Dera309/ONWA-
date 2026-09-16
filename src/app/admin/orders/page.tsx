@@ -45,16 +45,16 @@ export default async function AdminOrdersPage() {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <div key={order.id} className="artwork-mat p-6 flex justify-between items-center">
+              <div key={order.id} className="artwork-mat p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="museum-heading text-headline-md text-primary mb-1">
+                  <h3 className="museum-heading text-lg sm:text-headline-md text-primary mb-1">
                     #{order.orderNumber}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {order.collector.name || order.collector.email} Â· {order.currency} {order.total.toFixed(2)}
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+                    {order.collector.name || order.collector.email} · {order.currency} {order.total.toFixed(2)}
                   </p>
-                  <div className="flex gap-2">
-                    <span className={`px-2 py-1 text-xs rounded ${
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`px-2 py-0.5 text-xs rounded font-medium ${
                       order.status === "COMPLETED"
                         ? "bg-green-500/10 text-green-400 border border-green-500/20"
                         : order.status === "CANCELLED"

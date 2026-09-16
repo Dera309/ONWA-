@@ -40,21 +40,21 @@ export default async function AdminReviewsPage() {
         )}
         <div className="space-y-4">
           {reviews.map((r) => (
-            <div key={r.id} className="artwork-mat p-6">
-              <div className="flex justify-between items-start mb-2">
+            <div key={r.id} className="artwork-mat p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div>
-                  <h3 className="museum-heading text-headline-md text-primary">{r.artwork.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {r.collector.name || r.collector.email} Â· {"â˜…".repeat(r.rating)}{"â˜†".repeat(5 - r.rating)}
+                  <h3 className="museum-heading text-lg sm:text-headline-md text-primary">{r.artwork.title}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {r.collector.name || r.collector.email} · {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
                   </p>
                 </div>
-                <span className={`px-2 py-1 text-xs rounded ${
+                <span className={`px-2.5 py-0.5 text-xs rounded font-medium w-fit ${
                   r.status === "APPROVED" ? "bg-green-500/10 text-green-400 border border-green-500/20"
                   : r.status === "REJECTED" ? "bg-red-500/10 text-red-400 border border-red-500/20"
                   : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
                 }`}>{r.status}</span>
               </div>
-              {r.comment && <p className="text-sm text-muted-foreground">{r.comment}</p>}
+              {r.comment && <p className="text-xs sm:text-sm text-muted-foreground mt-2">{r.comment}</p>}
             </div>
           ))}
         </div>

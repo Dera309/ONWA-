@@ -162,18 +162,18 @@ export default async function ArtworkPage({ params }: ArtworkPageProps) {
               </div>
 
               {/* Collection & Moon Cycle */}
-              <div className="border-t border-border/20 pt-8 flex gap-8">
+              <div className="border-t border-border/20 pt-8 flex flex-wrap gap-6 sm:gap-8">
                 <div>
-                  <p className="label-caps text-muted-foreground mb-1">Collection</p>
+                  <p className="label-caps text-muted-foreground mb-1 text-xs">Collection</p>
                   <p className="museum-body text-body-md text-primary">{artwork.collection.name}</p>
                 </div>
                 <div>
-                  <p className="label-caps text-muted-foreground mb-1">Moon Cycle</p>
+                  <p className="label-caps text-muted-foreground mb-1 text-xs">Moon Cycle</p>
                   <p className="museum-body text-body-md text-primary">{artwork.moonCycle.name}</p>
                 </div>
                 {artwork.era && (
                   <div>
-                    <p className="label-caps text-muted-foreground mb-1">Era</p>
+                    <p className="label-caps text-muted-foreground mb-1 text-xs">Era</p>
                     <p className="museum-body text-body-md text-primary">{artwork.era}</p>
                   </div>
                 )}

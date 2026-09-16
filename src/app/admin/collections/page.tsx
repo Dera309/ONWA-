@@ -46,11 +46,11 @@ export default async function AdminCollectionsPage() {
         ) : (
           <div className="space-y-4">
             {collections.map((col) => (
-              <div key={col.id} className="artwork-mat p-6 flex justify-between items-center">
+              <div key={col.id} className="artwork-mat p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="museum-heading text-headline-md text-primary mb-1">{col.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{col.moonCycle.name} Â· {col.region || "â€”"}</p>
-                  <span className={`px-2 py-1 text-xs rounded ${
+                  <h3 className="museum-heading text-lg sm:text-headline-md text-primary mb-1">{col.name}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2">{col.moonCycle.name} · {col.region || "—"}</p>
+                  <span className={`px-2.5 py-0.5 text-xs rounded font-medium ${
                     col.status === "PUBLISHED"
                       ? "bg-green-500/10 text-green-400 border border-green-500/20"
                       : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
@@ -58,7 +58,7 @@ export default async function AdminCollectionsPage() {
                 </div>
                 <Link
                   href={`/admin/collections/${col.id}/edit`}
-                  className="text-sm text-primary hover:underline"
+                  className="inline-flex items-center justify-center rounded-md text-xs sm:text-sm font-medium transition-colors bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 px-4 w-fit"
                 >
                   Edit
                 </Link>

@@ -42,23 +42,23 @@ export default async function GalleryPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button className="px-4 py-2 border border-primary text-primary label-caps text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <button className="px-3 sm:px-4 py-1.5 sm:py-2 border border-primary text-primary label-caps text-xs">
               All
             </button>
-            <button className="px-4 py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-sm transition-colors">
+            <button className="px-3 sm:px-4 py-1.5 sm:py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-xs transition-colors">
               West Africa
             </button>
-            <button className="px-4 py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-sm transition-colors">
+            <button className="px-3 sm:px-4 py-1.5 sm:py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-xs transition-colors">
               East Africa
             </button>
-            <button className="px-4 py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-sm transition-colors">
+            <button className="px-3 sm:px-4 py-1.5 sm:py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-xs transition-colors">
               North Africa
             </button>
-            <button className="px-4 py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-sm transition-colors">
+            <button className="px-3 sm:px-4 py-1.5 sm:py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-xs transition-colors">
               Southern Africa
             </button>
-            <button className="px-4 py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-sm transition-colors">
+            <button className="px-3 sm:px-4 py-1.5 sm:py-2 border border-border text-muted-foreground hover:border-primary hover:text-primary label-caps text-xs transition-colors">
               Central Africa
             </button>
           </div>

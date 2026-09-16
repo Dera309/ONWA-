@@ -50,14 +50,14 @@ export default async function AdminPaymentsPage() {
         )}
         <div className="space-y-4">
           {orders.map((order) => (
-            <div key={order.id} className="artwork-mat p-6 flex justify-between items-center">
+            <div key={order.id} className="artwork-mat p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="museum-heading text-headline-md text-primary mb-1">#{order.orderNumber}</h3>
-                <p className="text-sm text-muted-foreground">{order.collector.name || order.collector.email} Â· {order.paymentProvider}</p>
+                <h3 className="museum-heading text-lg sm:text-headline-md text-primary mb-1">#{order.orderNumber}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{order.collector.name || order.collector.email} · {order.paymentProvider}</p>
               </div>
-              <div className="text-right">
-                <p className="text-primary font-medium">{order.currency} {order.total.toFixed(2)}</p>
-                <p className="text-xs text-muted-foreground">{order.paidAt ? new Date(order.paidAt).toLocaleDateString() : "â€”"}</p>
+              <div className="text-left sm:text-right">
+                <p className="text-primary font-medium text-sm sm:text-base">{order.currency} {order.total.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">{order.paidAt ? new Date(order.paidAt).toLocaleDateString() : "—"}</p>
               </div>
             </div>
           ))}

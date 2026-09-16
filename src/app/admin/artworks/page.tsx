@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import DeleteArtworkButton from "./DeleteArtworkButton";
+import PublishArtworkButton from "./PublishArtworkButton";
 
 export const metadata: Metadata = {
   title: "Artworks Management | ONWA",
@@ -72,56 +73,56 @@ export default async function AdminArtworksPage() {
         ) : (
           <div className="space-y-6">
             {artworks.map((artwork) => (
-              <div key={artwork.id} className="artwork-mat p-6">
-                <div className="flex gap-6">
-                  <div className="flex-shrink-0">
+              <div key={artwork.id} className="artwork-mat p-4 sm:p-6 border border-border/30">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                  <div className="flex-shrink-0 w-full sm:w-32 h-48 sm:h-32 bg-black/40 rounded overflow-hidden">
                     <img
                       src={artwork.heroImage}
                       alt={artwork.heroImageAlt || artwork.title}
-                      className="w-32 h-32 object-cover rounded"
+                      className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="museum-heading text-headline-md text-primary mb-2">
-                      {artwork.title}
-                    </h3>
-                    {artwork.subtitle && (
-                      <p className="museum-body text-body-sm text-muted-foreground mb-2">
-                        {artwork.subtitle}
-                      </p>
-                    )}
-                    <div className="flex gap-4 text-sm text-muted-foreground mb-3">
-                      <span>{artwork.collection.name}</span>
-                      <span>â€¢</span>
-                      <span>{artwork.moonCycle.name}</span>
-                      <span>â€¢</span>
-                      <span>{artwork.region}, {artwork.country}</span>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                        <h3 className="museum-heading text-xl sm:text-headline-md text-primary">
+                          {artwork.title}
+                        </h3>
+                        <span className="text-primary font-medium text-sm sm:text-base">
+                          ${artwork.price.toFixed(2)}
+                        </span>
+                      </div>
+                      {artwork.subtitle && (
+                        <p className="museum-body text-body-sm text-muted-foreground mb-2">
+                          {artwork.subtitle}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs sm:text-sm text-muted-foreground mb-4">
+                        <span>{artwork.collection.name}</span>
+                        <span>·</span>
+                        <span>{artwork.moonCycle.name}</span>
+                        <span>·</span>
+                        <span>{artwork.region}, {artwork.country}</span>
+                      </div>
                     </div>
-                    <div className="flex gap-4 text-sm items-center">
-                      <span className={`px-2 py-1 rounded ${
-                        artwork.status === "PUBLISHED" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/20">
+                      <span className={`px-2.5 py-0.5 text-xs rounded font-medium ${
+                        artwork.status === "PUBLISHED" 
+                          ? "bg-green-500/10 text-green-400 border border-green-500/20" 
+                          : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
                       }`}>
                         {artwork.status}
                       </span>
-                      <span className="text-muted-foreground">
-                        ${artwork.price.toFixed(2)}
-                      </span>
-                      <div className="flex gap-2 ml-auto">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Link
                           href={`/admin/artworks/${artwork.id}/edit`}
-                          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 px-3"
+                          className="inline-flex items-center justify-center rounded-md text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-8 px-3"
                         >
                           Edit
                         </Link>
                         {artwork.status === "DRAFT" && (
-                          <form action={`/api/admin/artworks/${artwork.id}/publish`} method="POST">
-                            <button
-                              type="submit"
-                              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3"
-                            >
-                              Publish
-                            </button>
-                          </form>
+                          <PublishArtworkButton artworkId={artwork.id} />
                         )}
                         <DeleteArtworkButton artworkId={artwork.id} />
                       </div>

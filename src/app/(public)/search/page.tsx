@@ -29,19 +29,19 @@ export default function SearchPage() {
 
           {/* Search Form */}
           <form onSubmit={handleSearch} className="mb-12">
-            <div className="relative">
+            <div className="relative flex items-center">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
               <Input
                 type="text"
-                placeholder="Search artworks, collections, artists..."
+                placeholder="Search artworks, collections, culture..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full h-14 pl-14 pr-4 text-lg bg-card border-border/20"
+                className="w-full h-12 sm:h-14 pl-12 sm:pl-14 pr-24 sm:pr-28 text-sm sm:text-lg bg-card border-border/20 rounded-md"
               />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Button
                 type="submit"
                 disabled={!query.trim() || isSearching}
-                className="absolute right-2 top-1/2 -translate-y-1/2"
+                className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
               >
                 {isSearching ? "Searching..." : "Search"}
               </Button>

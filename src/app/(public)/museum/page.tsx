@@ -13,33 +13,36 @@ export default function MuseumPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Museum Mode Header */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-container-lowest via-background to-background" />
         
         <div className="relative z-10 text-center px-4 max-w-7xl mx-auto">
           <div className="animate-in-up">
-            <p className="label-caps text-muted-foreground mb-8">Museum Mode</p>
-            <h1 className="museum-heading text-display-xl-mobile md:text-display-xl text-primary mb-8">
+            <p className="label-caps text-muted-foreground mb-4 md:mb-8 text-xs">Museum Mode</p>
+            <h1 className="museum-heading text-display-xl-mobile md:text-display-xl text-primary mb-6 md:mb-8">
               {currentPhase.name}
             </h1>
-            <p className="museum-body text-body-lg md:text-body-lg text-muted-foreground max-w-2xl mx-auto mb-12">
+            <p className="museum-body text-base md:text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8 md:mb-12">
               {currentPhase.description}
             </p>
-            <div className="flex items-center justify-center space-x-8 mb-16">
+            <div className="flex items-center justify-center space-x-8 mb-10 md:mb-16">
               <div className="text-center">
                 <p className="text-4xl md:text-6xl text-primary mb-2">{currentPhase.icon}</p>
-                <p className="label-caps text-muted-foreground">Current Phase</p>
+                <p className="label-caps text-muted-foreground text-xs">Current Phase</p>
               </div>
             </div>
-            <button className="inline-flex items-center justify-center px-8 py-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps">
+            <a 
+              href="#exhibition"
+              className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps text-xs sm:text-sm"
+            >
               Enter Exhibition
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Featured Artwork */}
-      <section className="py-32 px-4">
+      <section id="exhibition" className="py-20 md:py-32 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="artwork-mat">

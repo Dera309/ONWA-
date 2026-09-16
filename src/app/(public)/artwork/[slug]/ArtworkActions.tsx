@@ -236,11 +236,11 @@ export default function ArtworkActions({
       )}
 
       {/* Action buttons */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         {isLicenseOwned ? (
           <Link
             href="/collected-works"
-            className="flex-1 inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 label-caps font-semibold gap-2 text-center"
+            className="flex-1 inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 label-caps text-xs sm:text-sm font-semibold gap-2 text-center"
           >
             <span>Access in Collected Works</span>
             <ArrowRight className="w-4 h-4" />
@@ -249,7 +249,7 @@ export default function ArtworkActions({
           <button
             onClick={handleAddToRitual}
             disabled={isLoading}
-            className="flex-1 inline-flex items-center justify-center px-8 py-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "Processing..." : "Add to Ritual"}
           </button>
@@ -257,7 +257,7 @@ export default function ArtworkActions({
         <button
           onClick={handleFutureCollection}
           disabled={wishlistLoading || wishlistAdded}
-          className="inline-flex items-center justify-center px-8 py-4 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300 label-caps disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300 label-caps text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {wishlistAdded ? "✓ Saved" : wishlistLoading ? "Saving..." : "Future Collection"}
         </button>

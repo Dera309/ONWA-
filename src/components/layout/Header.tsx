@@ -57,24 +57,24 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
   if (!mobileMenuOpen) return null;
 
   return (
-    <div className="md:hidden border-t border-border/20 bg-background">
-      <nav className="container mx-auto px-4 py-8 space-y-6">
+    <div className="md:hidden border-t border-border/20 bg-background/95 backdrop-blur-xl animate-in fade-in">
+      <nav className="container mx-auto px-6 py-6 space-y-5">
         {navigation.map((item) => (
           <Link
             key={item.name}
             href={item.href}
             onClick={() => setMobileMenuOpen(false)}
             className={cn(
-              "block label-caps text-sm transition-colors",
+              "block label-caps text-sm transition-colors py-1",
               isActive(item.href) ? "text-primary" : "text-muted-foreground hover:text-primary"
             )}
           >
             {item.name}
           </Link>
         ))}
-        <div className="pt-6 border-t border-border/20 flex items-center space-x-4">
+        <div className="pt-5 border-t border-border/20 flex flex-wrap items-center gap-3">
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary" asChild>
-            <Link href="/search">
+            <Link href="/search" onClick={() => setMobileMenuOpen(false)}>
               <Search className="w-5 h-5" />
             </Link>
           </Button>
@@ -83,11 +83,18 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
               <Link
                 href="/admin/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="label-caps text-xs text-primary transition-colors block mb-3 px-3 py-1.5 rounded bg-primary/10 border border-primary/20 w-fit"
+                className="label-caps text-xs text-primary transition-colors px-3 py-1.5 rounded bg-primary/10 border border-primary/20"
               >
                 Curator's Office
               </Link>
             )}
+            <Link
+              href="/collected-works"
+              onClick={() => setMobileMenuOpen(false)}
+              className="label-caps text-xs text-muted-foreground hover:text-primary transition-colors px-3 py-1.5 rounded border border-border/40"
+            >
+              Vault
+            </Link>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
