@@ -2,15 +2,17 @@ import axios from "axios";
 import { createHmac } from "crypto";
 
 const PAYSTACK_API_URL = "https://api.paystack.co";
-const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
-const PUBLIC_KEY = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
 
-const api = axios.create({
-  baseURL: PAYSTACK_API_URL,
-  headers: {
-    Authorization: `Bearer ${SECRET_KEY}`,
-  },
-});
+function getClient() {
+  const secretKey = process.env.PAYSTACK_SECRET_KEY;
+  return axios.create({
+    baseURL: PAYSTACK_API_URL,
+    headers: {
+      Authorization: `Bearer ${secretKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+}
 
 export interface CheckoutOptions {
   artworkId: string;
@@ -23,13 +25,14 @@ export interface CheckoutOptions {
 
 export async function initializeTransaction(options: CheckoutOptions) {
   try {
+    const client = getClient();
     const baseUrl = (
       process.env.NEXT_PUBLIC_APP_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
     ).replace(/\/$/, "");
 
-    const response = await api.post("/transaction/initialize", {
-      amount: options.amount * 100, // Paystack expects amount in kobo
+    const response = await client.post("/transaction/initialize", {
+      amount: Math.round(options.amount * 100), // Paystack expects amount in lowest currency unit (cents/kobo)
       email: options.email,
       metadata: {
         artwork_id: options.artworkId,
@@ -41,19 +44,22 @@ export async function initializeTransaction(options: CheckoutOptions) {
     });
 
     return response.data.data;
-  } catch (error) {
-    console.error("Paystack initialization error:", error);
-    throw new Error("Failed to initialize transaction");
+  } catch (error: any) {
+    const msg = error.response?.data?.message || error.message || "Failed to initialize transaction";
+    console.error("Paystack initialization error:", msg, error.response?.data);
+    throw new Error(msg);
   }
 }
 
 export async function verifyTransaction(reference: string) {
   try {
-    const response = await api.get(`/transaction/verify/${reference}`);
+    const client = getClient();
+    const response = await client.get(`/transaction/verify/${reference}`);
     return response.data.data;
-  } catch (error) {
-    console.error("Paystack verification error:", error);
-    throw new Error("Failed to verify transaction");
+  } catch (error: any) {
+    const msg = error.response?.data?.message || error.message || "Failed to verify transaction";
+    console.error("Paystack verification error:", msg, error.response?.data);
+    throw new Error(msg);
   }
 }
 

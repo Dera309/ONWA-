@@ -30,15 +30,8 @@ const isPublicRoute = createRouteMatcher([
   // Admin (no auth in middleware — handled in page-level guards)
   "/admin",
   "/admin/(.*)",
-  // Public APIs
-  "/api/artworks",
-  "/api/artworks/(.*)",
-  "/api/collections",
-  "/api/collections/(.*)",
-  "/api/moon-cycles",
-  "/api/moon-cycles/(.*)",
-  "/api/admin/(.*)",
-  "/api/webhooks/(.*)",
+  // Public APIs (Route handlers manage their own auth and return JSON)
+  "/api/(.*)",
   "/(.*)\\.(.*)",
 ]);
 

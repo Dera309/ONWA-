@@ -79,11 +79,26 @@ export default function ArtworkActions({
       });
 
       if (res.status === 401) {
-        router.push("/login");
+        router.push("/sign-in");
         return;
       }
 
-      const data = await res.json();
+      let data: any = {};
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        if (res.status === 401 || text.includes("sign-in") || text.includes("login")) {
+          router.push("/sign-in");
+          return;
+        }
+        throw new Error(
+          res.ok
+            ? "Unexpected server response"
+            : `Server returned an error (${res.status}). Please try again.`
+        );
+      }
 
       if (res.status === 409 || data.alreadyOwned) {
         // Mark as owned for this license type
@@ -98,6 +113,10 @@ export default function ArtworkActions({
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to initiate payment");
+      }
+
+      if (!data.authorizationUrl) {
+        throw new Error("Payment gateway did not return a checkout URL.");
       }
 
       // Redirect to Paystack checkout
@@ -120,11 +139,26 @@ export default function ArtworkActions({
       });
 
       if (res.status === 401) {
-        router.push("/login");
+        router.push("/sign-in");
         return;
       }
 
-      const data = await res.json();
+      let data: any = {};
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        if (res.status === 401 || text.includes("sign-in") || text.includes("login")) {
+          router.push("/sign-in");
+          return;
+        }
+        throw new Error(
+          res.ok
+            ? "Unexpected server response"
+            : `Server returned an error (${res.status}). Please try again.`
+        );
+      }
 
       if (res.status === 409 || res.ok) {
         setWishlistAdded(true);

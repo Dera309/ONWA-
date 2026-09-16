@@ -21,23 +21,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let collector = await prisma.collector.findUnique({
-      where: { clerkId: userId },
-    });
-    if (!collector) {
-      const email =
-        (sessionClaims?.email as string | undefined) ||
-        `${userId}@onwa.art`;
-      const name = [sessionClaims?.firstName, sessionClaims?.lastName]
-        .filter(Boolean)
-        .join(" ");
+    const email =
+      (sessionClaims?.email as string | undefined) ||
+      (sessionClaims?.primaryEmail as string | undefined) ||
+      `${userId}@onwa.art`;
+    const name = [sessionClaims?.firstName, sessionClaims?.lastName]
+      .filter(Boolean)
+      .join(" ");
 
+    let collector = await prisma.collector.findFirst({
+      where: {
+        OR: [
+          { clerkId: userId },
+          { email: { equals: email, mode: "insensitive" } },
+        ],
+      },
+    });
+
+    if (!collector) {
       collector = await prisma.collector.create({
         data: {
           clerkId: userId,
           email,
           name: name.trim() || null,
         },
+      });
+    } else if (collector.clerkId !== userId) {
+      collector = await prisma.collector.update({
+        where: { id: collector.id },
+        data: { clerkId: userId },
       });
     }
 
