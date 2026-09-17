@@ -110,6 +110,7 @@ export async function POST(req: NextRequest) {
       resolution,
       licenseType,
       amount,
+      currency: artwork.currency || "USD",
       email: collector.email,
       metadata: {
         collector_id: collector.id,
