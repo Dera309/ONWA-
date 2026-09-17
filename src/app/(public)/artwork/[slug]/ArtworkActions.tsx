@@ -78,26 +78,25 @@ export default function ArtworkActions({
         }),
       });
 
-      if (res.status === 401) {
-        router.push("/sign-in");
-        return;
-      }
-
+      const text = await res.text();
       let data: any = {};
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        if (res.status === 401 || text.includes("sign-in") || text.includes("login")) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        if (res.status === 401 || text.includes("sign-in") || text.includes("login") || text.includes("Clerk")) {
           router.push("/sign-in");
           return;
         }
         throw new Error(
-          res.ok
-            ? "Unexpected server response"
-            : `Server returned an error (${res.status}). Please try again.`
+          res.status === 404
+            ? "Payment service endpoint not found (404). Please refresh the page."
+            : `Server error (${res.status}). Please try again shortly.`
         );
+      }
+
+      if (res.status === 401 || data.error === "Unauthorized" || data.requiresAuth) {
+        router.push("/sign-in");
+        return;
       }
 
       if (res.status === 409 || data.alreadyOwned) {
@@ -138,26 +137,21 @@ export default function ArtworkActions({
         body: JSON.stringify({ artworkId }),
       });
 
-      if (res.status === 401) {
-        router.push("/sign-in");
-        return;
-      }
-
+      const text = await res.text();
       let data: any = {};
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        if (res.status === 401 || text.includes("sign-in") || text.includes("login")) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        if (res.status === 401 || text.includes("sign-in") || text.includes("login") || text.includes("Clerk")) {
           router.push("/sign-in");
           return;
         }
-        throw new Error(
-          res.ok
-            ? "Unexpected server response"
-            : `Server returned an error (${res.status}). Please try again.`
-        );
+        throw new Error(`Server returned error (${res.status}). Please try again.`);
+      }
+
+      if (res.status === 401 || data.error === "Unauthorized") {
+        router.push("/sign-in");
+        return;
       }
 
       if (res.status === 409 || res.ok) {

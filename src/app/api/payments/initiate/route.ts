@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("[POST /api/payments/initiate]", err);
     return NextResponse.json(
-      { error: "Failed to initiate payment" },
+      { error: err instanceof Error ? err.message : "Failed to initiate payment" },
       { status: 500 }
     );
   }
