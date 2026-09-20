@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       where: {
         OR: [
           { clerkId: userId },
-          { email: { equals: email, mode: "insensitive" } },
+          { email: email },
         ],
       },
     });

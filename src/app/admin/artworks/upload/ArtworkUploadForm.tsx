@@ -30,6 +30,8 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [collectionId, setCollectionId] = useState<string>("");
+  const [moonCycleId, setMoonCycleId] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,6 +40,8 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
 
     try {
       const formData = new FormData(e.currentTarget);
+      formData.set("collectionId", collectionId);
+      formData.set("moonCycleId", moonCycleId);
       
       // For now, we'll use a placeholder URL if no file is uploaded
       // In production, you'd upload to R2/S3 and get the URL
@@ -163,7 +167,7 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
         
         <div>
           <Label htmlFor="collectionId">Collection *</Label>
-          <Select name="collectionId" required>
+          <Select value={collectionId} onValueChange={setCollectionId} required>
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="Select a collection" />
             </SelectTrigger>
@@ -179,7 +183,7 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
 
         <div>
           <Label htmlFor="moonCycleId">Moon Cycle *</Label>
-          <Select name="moonCycleId" required>
+          <Select value={moonCycleId} onValueChange={setMoonCycleId} required>
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="Select a moon cycle" />
             </SelectTrigger>

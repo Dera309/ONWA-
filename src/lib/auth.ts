@@ -65,7 +65,7 @@ export async function getCurrentAdmin() {
 
     if (userEmail) {
       admin = await prisma.admin.findFirst({
-        where: { email: { equals: userEmail, mode: "insensitive" } },
+        where: { email: userEmail },
       });
 
       if (admin) {

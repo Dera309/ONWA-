@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
       status: query.status,
     };
 
-    if (query.region) {
-      where.region = query.region;
+    if (query.region && query.region.toLowerCase() !== "all") {
+      where.region = { contains: query.region, mode: "insensitive" };
     }
 
     if (query.country) {

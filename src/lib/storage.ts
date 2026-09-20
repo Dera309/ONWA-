@@ -113,3 +113,8 @@ export function generateGalleryKey(artworkId: string, filename: string) {
 export function generateHeroImageKey(artworkId: string, filename: string) {
   return `artworks/${artworkId}/hero/${filename}`;
 }
+
+export function generateCollectionCoverKey(collectionId: string, filename: string) {
+  return `collections/${collectionId}/cover/${filename}`;
+}
+

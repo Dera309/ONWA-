@@ -32,6 +32,7 @@ const isPublicRoute = createRouteMatcher([
   "/admin/(.*)",
   // Public APIs (Route handlers manage their own auth and return JSON)
   "/api/(.*)",
+  "/.well-known/(.*)",
   "/(.*)\\.(.*)",
 ]);
 

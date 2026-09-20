@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { requireCollector } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +13,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const collector = await prisma.collector.findUnique({
-      where: { clerkId: userId },
-    });
+    const collector = await requireCollector().catch(() => null);
     if (!collector) {
       return NextResponse.json({ items: [] });
     }
@@ -39,11 +38,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const collector = await prisma.collector.findUnique({
-      where: { clerkId: userId },
-    });
+    const collector = await requireCollector().catch(() => null);
     if (!collector) {
-      return NextResponse.json({ error: "Collector not found" }, { status: 404 });
+      return NextResponse.json({ error: "Collector profile could not be loaded" }, { status: 401 });
     }
 
     const { artworkId } = await req.json();
@@ -91,11 +88,9 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const collector = await prisma.collector.findUnique({
-      where: { clerkId: userId },
-    });
+    const collector = await requireCollector().catch(() => null);
     if (!collector) {
-      return NextResponse.json({ error: "Collector not found" }, { status: 404 });
+      return NextResponse.json({ error: "Collector profile not found" }, { status: 404 });
     }
 
     const artworkId = req.nextUrl.searchParams.get("artworkId");

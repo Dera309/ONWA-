@@ -31,7 +31,7 @@ export async function POST() {
       where: {
         OR: [
           { clerkId: userId },
-          { email: { equals: userEmail, mode: "insensitive" } },
+          { email: userEmail },
         ],
       },
     });

@@ -35,6 +35,9 @@ export async function GET(request: NextRequest) {
             { title: { contains: query.q, mode: "insensitive" } },
             { description: { contains: query.q, mode: "insensitive" } },
             { story: { contains: query.q, mode: "insensitive" } },
+            { region: { contains: query.q, mode: "insensitive" } },
+            { country: { contains: query.q, mode: "insensitive" } },
+            { ethnicGroup: { contains: query.q, mode: "insensitive" } },
           ],
         },
         include: {

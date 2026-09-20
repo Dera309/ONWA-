@@ -47,8 +47,9 @@ prisma/migrations
 *.swo
 *~
 
-# OS
-Thumbs.db
-
 # Design exports
 stitch_onwa_african_digital_museum/
+
+# Uploads
+/public/uploads
+
