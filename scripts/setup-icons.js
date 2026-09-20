@@ -107,5 +107,42 @@ const cleanPng = Buffer.from(
   'base64'
 );
 fs.writeFileSync(path.join(__dirname, '..', 'public', 'icon.png'), cleanPng);
+fs.writeFileSync(path.join(__dirname, '..', 'public', 'apple-touch-icon.png'), cleanPng);
+fs.writeFileSync(path.join(__dirname, '..', 'public', 'apple-touch-icon-precomposed.png'), cleanPng);
+fs.writeFileSync(path.join(__dirname, '..', 'public', 'favicon-32x32.png'), cleanPng);
+fs.writeFileSync(path.join(__dirname, '..', 'public', 'favicon-16x16.png'), cleanPng);
 
-console.log('✅ Clean static icons created in public/ and dynamic metadata icons removed from src/app/');
+// 5. Create manifest.json and site.webmanifest
+const manifestContent = JSON.stringify({
+  name: "ONWA - African Digital Museum",
+  short_name: "ONWA",
+  description: "Preserve, celebrate, and reimagine African culture through AI-assisted digital artwork.",
+  start_url: "/",
+  display: "standalone",
+  background_color: "#0a0a0c",
+  theme_color: "#0a0a0c",
+  icons: [
+    {
+      src: "/icon.svg",
+      sizes: "any",
+      type: "image/svg+xml"
+    },
+    {
+      src: "/icon.png",
+      sizes: "512x512",
+      type: "image/png"
+    },
+    {
+      src: "/apple-touch-icon.png",
+      sizes: "180x180",
+      type: "image/png"
+    }
+  ]
+}, null, 2);
+
+fs.writeFileSync(path.join(__dirname, '..', 'public', 'manifest.json'), manifestContent, 'utf8');
+fs.writeFileSync(path.join(__dirname, '..', 'public', 'manifest.webmanifest'), manifestContent, 'utf8');
+fs.writeFileSync(path.join(__dirname, '..', 'public', 'site.webmanifest'), manifestContent, 'utf8');
+
+console.log('✅ Clean static icons and manifests created in public/ and dynamic metadata icons removed from src/app/');
+
