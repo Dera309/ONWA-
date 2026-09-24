@@ -14,15 +14,25 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId, sessionClaims } = await auth();
-  let userEmail = (sessionClaims?.email as string | undefined) || "";
+  let userId: string | null = null;
+  let userEmail = "";
   let userName = "";
 
   try {
-    const user = await currentUser();
-    if (user) {
-      if (!userEmail) userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase() || "";
-      userName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    const authState = auth();
+    userId = authState.userId;
+    userEmail = (authState.sessionClaims?.email as string | undefined)?.toLowerCase() || "";
+  } catch (err) {
+    console.warn("[AdminLayout] auth() notice:", err);
+  }
+
+  try {
+    if (userId) {
+      const user = await currentUser();
+      if (user) {
+        if (!userEmail) userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase() || "";
+        userName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+      }
     }
   } catch (err) {
     console.warn("[AdminLayout] currentUser fetch notice:", err);
@@ -70,38 +80,38 @@ export default async function AdminLayout({
   let adminRecord = null;
   const PRIMARY_ADMIN_EMAIL = "chideraobia7@gmail.com";
   const isPrimaryAdmin =
-    userEmail && userEmail.toLowerCase() === PRIMARY_ADMIN_EMAIL;
+    userEmail && (userEmail.toLowerCase() === PRIMARY_ADMIN_EMAIL || userEmail.toLowerCase().includes("chideraobia7"));
 
   try {
-    if (isPrimaryAdmin) {
-      // Find or create admin for chideraobia7@gmail.com
+    // 1. Try finding by clerkId first (indexed & direct)
+    if (userId) {
       adminRecord = await prisma.admin.findFirst({
-        where: { email: { equals: PRIMARY_ADMIN_EMAIL, mode: "insensitive" } },
+        where: { clerkId: userId },
+      });
+    }
+
+    // 2. If not found by clerkId and user is primary curator, match or link by email
+    if (!adminRecord && isPrimaryAdmin) {
+      adminRecord = await prisma.admin.findFirst({
+        where: { email: PRIMARY_ADMIN_EMAIL },
       });
 
-      if (adminRecord) {
-        if (adminRecord.clerkId !== userId) {
-          adminRecord = await prisma.admin.update({
-            where: { id: adminRecord.id },
-            data: { clerkId: userId, name: "chidera" },
-          });
-        }
-      } else {
+      if (adminRecord && userId) {
+        adminRecord = await prisma.admin.update({
+          where: { id: adminRecord.id },
+          data: { clerkId: userId, name: userName || "chidera" },
+        });
+      } else if (!adminRecord && userId) {
         adminRecord = await prisma.admin.create({
           data: {
             clerkId: userId,
             email: PRIMARY_ADMIN_EMAIL,
-            name: "chidera",
+            name: userName || "chidera",
             role: "SUPER_ADMIN",
             permissions: ["all"],
           },
         });
       }
-    } else if (userId) {
-      // Check if user is registered in admin table
-      adminRecord = await prisma.admin.findFirst({
-        where: { clerkId: userId },
-      });
     }
   } catch (err) {
     console.error("[AdminLayout] Error verifying admin:", err);

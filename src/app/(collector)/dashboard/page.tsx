@@ -45,7 +45,7 @@ export default async function CollectorDashboardPage() {
         where: {
           OR: [
             { clerkId: collector.clerkId },
-            { email: { equals: collector.email, mode: "insensitive" } },
+            { email: collector.email },
           ],
         },
       }),
