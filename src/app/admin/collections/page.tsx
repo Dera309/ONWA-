@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus, Sparkles, Image as ImageIcon } from "lucide-react";
 import DeleteCollectionButton from "./DeleteCollectionButton";
+import { CollectionCoverImage } from "./CollectionCoverImage";
 
 export const metadata: Metadata = {
   title: "Collections | Curator Office | ONWA",
@@ -81,21 +82,7 @@ export default async function AdminCollectionsPage() {
                 <div>
                   {/* Cover Image Thumbnail */}
                   <div className="aspect-video bg-surface-container-low rounded-md overflow-hidden mb-4 relative border border-border/20">
-                    {col.coverImage ? (
-                      <img
-                        src={col.coverImage.startsWith("http") || col.coverImage.startsWith("/") ? col.coverImage : `/${col.coverImage}`}
-                        alt={col.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.src = "/hero-artwork.png";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
-                        <ImageIcon className="w-8 h-8" />
-                      </div>
-                    )}
+                    <CollectionCoverImage src={col.coverImage} alt={col.name} />
                     {col.featured && (
                       <div className="absolute top-2 right-2 px-2 py-0.5 bg-primary text-primary-foreground text-[10px] label-caps rounded flex items-center gap-1">
                         <Sparkles className="w-3 h-3" />
