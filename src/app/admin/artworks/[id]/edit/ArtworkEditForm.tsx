@@ -78,9 +78,21 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
         body: formData,
       });
 
+      let errorData: any = {};
+      try {
+        errorData = await response.json();
+      } catch {
+        if (response.status === 413) {
+          throw new Error("File payload is too large (HTTP 413). Please upload files under 4.5MB.");
+        }
+        throw new Error(`Server returned HTTP ${response.status}`);
+      }
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update artwork");
+        if (response.status === 413) {
+          throw new Error("File payload is too large (HTTP 413). Please upload files under 4.5MB.");
+        }
+        throw new Error(errorData.error || `Failed to update artwork (HTTP ${response.status})`);
       }
 
       setSuccess(true);
@@ -88,7 +100,7 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
         router.push("/admin/artworks");
         router.refresh();
       }, 1200);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Failed to update artwork");
     } finally {
       setIsSubmitting(false);

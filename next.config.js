@@ -7,6 +7,9 @@ const nextConfig = {
   optimizeFonts: false,
   experimental: {
     optimizeCss: false,
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
   },
   // Optimize images
   images: {

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { compressImageIfNeeded } from "@/lib/image-compressor";
 
 interface Collection {
   id: string;
@@ -43,12 +44,11 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
       formData.set("collectionId", collectionId);
       formData.set("moonCycleId", moonCycleId);
       
-      // For now, we'll use a placeholder URL if no file is uploaded
-      // In production, you'd upload to R2/S3 and get the URL
       if (heroImageFile) {
-        formData.append("heroImage", heroImageFile);
+        const compressed = await compressImageIfNeeded(heroImageFile);
+        formData.set("heroImage", compressed);
       } else {
-        formData.append("heroImageUrl", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800");
+        formData.set("heroImageUrl", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800");
       }
 
       const response = await fetch("/api/admin/artworks", {
@@ -57,8 +57,18 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload artwork");
+        let errorMessage = "Failed to upload artwork";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          if (response.status === 413) {
+            errorMessage = "Image file is too large (413 Payload Too Large). Please upload an image under 4MB.";
+          } else {
+            errorMessage = `Server error (${response.status})`;
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       router.push("/admin/artworks");

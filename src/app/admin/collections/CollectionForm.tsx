@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { compressImageIfNeeded } from "@/lib/image-compressor";
 import { Status } from "@prisma/client";
 import { Loader2, ArrowLeft, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
@@ -103,7 +104,8 @@ export default function CollectionForm({
       formData.set("coverImageAlt", coverImageAlt.trim());
 
       if (coverImageFile) {
-        formData.set("coverImage", coverImageFile);
+        const fileToUpload = await compressImageIfNeeded(coverImageFile);
+        formData.set("coverImage", fileToUpload);
       } else if (collection?.coverImage) {
         formData.set("coverImageUrl", collection.coverImage);
       } else {
@@ -124,10 +126,21 @@ export default function CollectionForm({
         body: formData,
       });
 
-      const data = await response.json();
+      let data: any = {};
+      try {
+        data = await response.json();
+      } catch {
+        if (response.status === 413) {
+          throw new Error("File payload is too large (HTTP 413). Please upload an image under 4.5MB.");
+        }
+        throw new Error(`Server returned HTTP ${response.status}`);
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to save collection");
+        if (response.status === 413) {
+          throw new Error("File payload is too large (HTTP 413). Please upload an image under 4.5MB.");
+        }
+        throw new Error(data.error || `Failed to save collection (HTTP ${response.status})`);
       }
 
       setSuccess(true);
