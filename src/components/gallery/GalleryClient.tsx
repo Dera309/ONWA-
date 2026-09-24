@@ -71,7 +71,7 @@ export function GalleryClient({
       setSelectedRegion(urlRegion);
       fetchArtworks(urlRegion, 1, false);
     }
-  }, [searchParams]);
+  }, [searchParams, selectedRegion]);
 
   const fetchArtworks = async (region: string, targetPage: number, append: boolean) => {
     if (append) {
