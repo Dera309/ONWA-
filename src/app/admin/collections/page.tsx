@@ -83,9 +83,13 @@ export default async function AdminCollectionsPage() {
                   <div className="aspect-video bg-surface-container-low rounded-md overflow-hidden mb-4 relative border border-border/20">
                     {col.coverImage ? (
                       <img
-                        src={col.coverImage}
+                        src={col.coverImage.startsWith("http") || col.coverImage.startsWith("/") ? col.coverImage : `/${col.coverImage}`}
                         alt={col.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src = "/hero-artwork.png";
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">

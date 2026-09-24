@@ -102,19 +102,23 @@ export async function deleteFile(key: string) {
   }
 }
 
+function sanitizeFilename(filename: string): string {
+  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+}
+
 export function generateArtworkKey(artworkId: string, resolution: string, extension: string) {
   return `artworks/${artworkId}/${resolution}.${extension}`;
 }
 
 export function generateGalleryKey(artworkId: string, filename: string) {
-  return `artworks/${artworkId}/gallery/${filename}`;
+  return `artworks/${artworkId}/gallery/${sanitizeFilename(filename)}`;
 }
 
 export function generateHeroImageKey(artworkId: string, filename: string) {
-  return `artworks/${artworkId}/hero/${filename}`;
+  return `artworks/${artworkId}/hero/${sanitizeFilename(filename)}`;
 }
 
 export function generateCollectionCoverKey(collectionId: string, filename: string) {
-  return `collections/${collectionId}/cover/${filename}`;
+  return `collections/${collectionId}/cover/${sanitizeFilename(filename)}`;
 }
 

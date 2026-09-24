@@ -25,6 +25,13 @@ export function ProtectedArtworkImage({
 }: ProtectedArtworkImageProps) {
   const { isShieldActive, showWarningToast } = useArtworkProtection();
   const [isHovered, setIsHovered] = useState(false);
+  const [imgSrc, setImgSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
+
+  React.useEffect(() => {
+    setImgSrc(src);
+    setHasError(false);
+  }, [src]);
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,8 +53,14 @@ export function ProtectedArtworkImage({
     >
       {/* 1. Base Artwork Image */}
       <img
-        src={src}
+        src={hasError ? "/hero-artwork.png" : imgSrc}
         alt={alt}
+        onError={() => {
+          if (!hasError) {
+            setHasError(true);
+            setImgSrc("/hero-artwork.png");
+          }
+        }}
         className={`protected-artwork-image transition-all duration-500 pointer-events-none ${
           isShieldActive ? "artwork-capture-shielded" : className
         }`}
