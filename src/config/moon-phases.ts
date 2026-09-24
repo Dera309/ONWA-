@@ -5,6 +5,7 @@ export const moonPhases = [
     phase: "NEW_MOON",
     description: "Beginnings, creation stories, and new narratives",
     icon: "🌑",
+    image: "/images/lunar/new-moon.svg",
     color: "#0a0a0a",
   },
   {
@@ -13,6 +14,7 @@ export const moonPhases = [
     phase: "WAXING_CRESCENT",
     description: "Growth, transformation, and emerging wisdom",
     icon: "🌒",
+    image: "/images/lunar/waxing-crescent.svg",
     color: "#1a1a1a",
   },
   {
@@ -21,6 +23,7 @@ export const moonPhases = [
     phase: "FIRST_QUARTER",
     description: "Action, decision, and movement forward",
     icon: "🌓",
+    image: "/images/lunar/first-quarter.svg",
     color: "#2a2a2a",
   },
   {
@@ -29,6 +32,7 @@ export const moonPhases = [
     phase: "WAXING_GIBBOUS",
     description: "Refinement, perfection, and preparation",
     icon: "🌔",
+    image: "/images/lunar/waxing-gibbous.svg",
     color: "#3a3a3a",
   },
   {
@@ -37,6 +41,7 @@ export const moonPhases = [
     phase: "FULL_MOON",
     description: "Illumination, revelation, and complete understanding",
     icon: "🌕",
+    image: "/images/lunar/full-moon.svg",
     color: "#4a4a4a",
   },
   {
@@ -45,6 +50,7 @@ export const moonPhases = [
     phase: "WANING_GIBBOUS",
     description: "Gratitude, sharing, and distribution of wisdom",
     icon: "🌖",
+    image: "/images/lunar/waning-gibbous.svg",
     color: "#3a3a3a",
   },
   {
@@ -53,6 +59,7 @@ export const moonPhases = [
     phase: "LAST_QUARTER",
     description: "Release, letting go, and forgiveness",
     icon: "🌗",
+    image: "/images/lunar/last-quarter.svg",
     color: "#2a2a2a",
   },
   {
@@ -61,6 +68,7 @@ export const moonPhases = [
     phase: "WANING_CRESCENT",
     description: "Rest, surrender, and preparation for rebirth",
     icon: "🌘",
+    image: "/images/lunar/waning-crescent.svg",
     color: "#1a1a1a",
   },
 ];

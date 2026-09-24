@@ -30,12 +30,16 @@ export default function CollectionsPage() {
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {moonPhases.map((phase) => (
-              <div key={phase.id} className="artwork-mat group cursor-pointer">
-                <div className="aspect-square bg-surface-container-low mb-4 flex items-center justify-center relative overflow-hidden">
-                  <div className="w-32 h-32 rounded-full border-2 border-border/20 group-hover:border-primary/40 transition-colors" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div key={phase.id} className="artwork-mat group cursor-pointer hover:border-primary/50 transition-all duration-300">
+                <div className="aspect-square bg-surface-container-low mb-4 flex items-center justify-center p-6 relative overflow-hidden group-hover:bg-surface-container transition-colors duration-300">
+                  <img
+                    src={phase.image || "/images/lunar/full-moon.svg"}
+                    alt={phase.name}
+                    className="w-28 sm:w-36 h-28 sm:h-36 object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(212,175,55,0.25)]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <p className="label-caps text-muted-foreground mb-2">{phase.name}</p>
+                <p className="label-caps text-primary text-xs mb-2 font-semibold">{phase.name}</p>
                 <h3 className="museum-heading text-headline-md text-primary mb-2">
                   {phase.name}
                 </h3>

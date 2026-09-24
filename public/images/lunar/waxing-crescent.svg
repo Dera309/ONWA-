@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="100%" height="100%">
+  <defs>
+    <!-- Background glow on illuminated right side -->
+    <radialGradient id="wc-halo" cx="70%" cy="50%" r="50%">
+      <stop offset="20%" stop-color="#D4AF37" stop-opacity="0.35" />
+      <stop offset="60%" stop-color="#C5A880" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+    
+    <!-- Dark unilluminated sphere -->
+    <radialGradient id="wc-dark-side" cx="35%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#18181e" />
+      <stop offset="70%" stop-color="#0d0d10" />
+      <stop offset="100%" stop-color="#060608" />
+    </radialGradient>
+
+    <!-- Golden illuminated crescent surface -->
+    <radialGradient id="wc-gold-surf" cx="78%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#FFF5DB" />
+      <stop offset="25%" stop-color="#E5C378" />
+      <stop offset="60%" stop-color="#C5A880" />
+      <stop offset="90%" stop-color="#8C6F42" />
+      <stop offset="100%" stop-color="#4A3B22" />
+    </radialGradient>
+
+    <!-- Terminator shadow gradient -->
+    <linearGradient id="wc-terminator" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#0d0d10" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#C5A880" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Clip path to shape the 90px radius sphere -->
+    <clipPath id="wc-moon-clip">
+      <circle cx="120" cy="120" r="90" />
+    </clipPath>
+  </defs>
+
+  <!-- Ambient Outer Golden Glow -->
+  <circle cx="120" cy="120" r="115" fill="url(#wc-halo)" />
+
+  <!-- Moon Body Group with Clipping -->
+  <g clip-path="url(#wc-moon-clip)">
+    <!-- 1. Dark side of the moon -->
+    <circle cx="120" cy="120" r="90" fill="url(#wc-dark-side)" />
+
+    <!-- 2. Dark side faint maria / crater details -->
+    <ellipse cx="80" cy="90" rx="18" ry="14" fill="#09090c" opacity="0.6" />
+    <ellipse cx="95" cy="140" rx="22" ry="16" fill="#09090c" opacity="0.7" />
+    <circle cx="70" cy="130" r="8" fill="#0b0b0e" opacity="0.5" />
+
+    <!-- 3. Glowing Golden Crescent (Waxing - right side) -->
+    <!-- Outer arc from (120,30) to (120,210) r=90, Inner arc back r=95 with offset center -->
+    <path d="M 120 30 A 90 90 0 0 1 210 120 A 90 90 0 0 1 120 210 A 108 90 0 0 0 120 30 Z" fill="url(#wc-gold-surf)" />
+
+    <!-- 4. Crescent Craters along the Terminator line -->
+    <circle cx="152" cy="70" r="4.5" fill="#4A3B22" opacity="0.6" />
+    <circle cx="153" cy="70" r="3.5" fill="#E5C378" opacity="0.5" />
+
+    <circle cx="168" cy="100" r="6" fill="#5A472A" opacity="0.7" />
+    <circle cx="169" cy="100" r="4.5" fill="#FFF5DB" opacity="0.4" />
+
+    <circle cx="165" cy="135" r="5" fill="#4A3B22" opacity="0.6" />
+    <circle cx="166" cy="135" r="4" fill="#E5C378" opacity="0.5" />
+
+    <circle cx="145" cy="165" r="4" fill="#4A3B22" opacity="0.6" />
+    <circle cx="146" cy="165" r="3" fill="#E5C378" opacity="0.5" />
+  </g>
+
+  <!-- Thin Outer Silhouette Ring -->
+  <circle cx="120" cy="120" r="90" fill="none" stroke="#D4AF37" stroke-width="1.2" stroke-opacity="0.3" />
+</svg>

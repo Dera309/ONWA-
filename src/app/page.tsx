@@ -77,18 +77,48 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {[
-              { phase: "New Moon", description: "Beginnings and creation stories" },
-              { phase: "Waxing Crescent", description: "Growth and transformation" },
-              { phase: "Full Moon", description: "Illumination and revelation" },
-              { phase: "Waning Crescent", description: "Reflection and wisdom" },
+              {
+                phase: "New Moon",
+                description: "Beginnings and creation stories",
+                image: "/images/lunar/new-moon.svg",
+              },
+              {
+                phase: "Waxing Crescent",
+                description: "Growth and transformation",
+                image: "/images/lunar/waxing-crescent.svg",
+              },
+              {
+                phase: "Full Moon",
+                description: "Illumination and revelation",
+                image: "/images/lunar/full-moon.svg",
+              },
+              {
+                phase: "Waning Crescent",
+                description: "Reflection and wisdom",
+                image: "/images/lunar/waning-crescent.svg",
+              },
             ].map((cycle, index) => (
-              <div key={index} className="artwork-mat group cursor-pointer">
-                <div className="aspect-square bg-surface-container-low mb-4 flex items-center justify-center group-hover:bg-surface-container transition-colors duration-300">
-                  <div className="w-24 sm:w-32 h-24 sm:h-32 rounded-full border-2 border-border/20 group-hover:border-primary/40 transition-colors duration-300" />
+              <Link
+                key={index}
+                href="/collections"
+                className="artwork-mat group cursor-pointer block hover:border-primary/50 transition-all duration-300"
+              >
+                <div className="aspect-square bg-surface-container-low mb-4 flex items-center justify-center p-6 relative overflow-hidden group-hover:bg-surface-container transition-colors duration-300">
+                  <img
+                    src={cycle.image}
+                    alt={cycle.phase}
+                    className="w-28 sm:w-36 h-28 sm:h-36 object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(212,175,55,0.25)]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <p className="label-caps text-muted-foreground mb-2">{cycle.phase}</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="label-caps text-primary text-xs font-semibold">{cycle.phase}</p>
+                  <span className="text-[10px] label-caps text-muted-foreground group-hover:text-primary transition-colors">
+                    View &rarr;
+                  </span>
+                </div>
                 <p className="museum-body text-sm md:text-body-md text-muted-foreground">{cycle.description}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
