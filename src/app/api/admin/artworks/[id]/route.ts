@@ -37,12 +37,32 @@ export async function PUT(
     const style = formData.get("style") as string | null;
     const price = parseFloat(formData.get("price") as string);
     const status = formData.get("status") as Status | null;
+    const heroImageFile = formData.get("heroImage") as File | null;
+    const heroImageUrl = formData.get("heroImageUrl") as string | null;
+    const heroImageAlt = formData.get("heroImageAlt") as string | null;
     const ambientAudioUrl = formData.get("ambientAudioUrl") as string | null;
     const ambientAudioFile = formData.get("ambientAudio") as File | null;
 
     // Validate required fields
     if (!title || !story || !collectionId || !moonCycleId || !region || !country || isNaN(price)) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    let heroImage = heroImageUrl || undefined;
+    if (heroImageFile && heroImageFile.size > 0) {
+      try {
+        const { uploadFile, generateHeroImageKey } = await import("@/lib/storage");
+        const key = generateHeroImageKey(id, heroImageFile.name);
+        const bytes = await heroImageFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        heroImage = await uploadFile(key, buffer, heroImageFile.type);
+      } catch (err: any) {
+        console.error("Error uploading hero image:", err);
+        return NextResponse.json(
+          { error: `Hero image upload failed: ${err?.message || "Unknown error"}` },
+          { status: 500 }
+        );
+      }
     }
 
     let ambientAudio = ambientAudioUrl;
@@ -78,6 +98,8 @@ export async function PUT(
         medium,
         style,
         price,
+        ...(heroImage && { heroImage }),
+        ...(heroImageAlt !== null && { heroImageAlt }),
         ...(ambientAudio !== undefined && { ambientAudio }),
         ...(status && { status }),
       },

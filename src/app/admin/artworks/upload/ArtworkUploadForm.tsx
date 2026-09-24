@@ -31,8 +31,19 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [collectionId, setCollectionId] = useState<string>("");
   const [moonCycleId, setMoonCycleId] = useState<string>("");
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setHeroImageFile(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,6 +58,7 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
       if (heroImageFile) {
         const compressed = await compressImageIfNeeded(heroImageFile);
         formData.set("heroImage", compressed);
+        formData.delete("heroImageUrl");
       } else {
         formData.set("heroImageUrl", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800");
       }
@@ -118,9 +130,18 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
             name="heroImage" 
             type="file" 
             accept="image/*"
-            onChange={(e) => setHeroImageFile(e.target.files?.[0] || null)}
+            onChange={handleImageChange}
             className="mt-1" 
           />
+          {imagePreview && (
+            <div className="mt-3 relative w-full max-w-sm h-48 rounded-lg overflow-hidden border border-border/40 bg-black/40">
+              <img
+                src={imagePreview}
+                alt="Upload preview"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           <p className="text-sm text-muted-foreground mt-1">
             Upload an image or leave empty to use a placeholder
           </p>

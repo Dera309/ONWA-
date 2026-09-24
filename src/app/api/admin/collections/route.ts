@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle image upload
-    let coverImage = coverImageUrl || "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800";
+    let coverImage = coverImageUrl;
     if (coverImageFile && coverImageFile.size > 0) {
       try {
         const tempId = Date.now().toString();
@@ -71,9 +71,17 @@ export async function POST(request: NextRequest) {
         const bytes = await coverImageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
         coverImage = await uploadFile(key, buffer, coverImageFile.type);
-      } catch (uploadError) {
+      } catch (uploadError: any) {
         console.error("Error uploading cover image:", uploadError);
+        return NextResponse.json(
+          { error: `Cover image upload failed: ${uploadError?.message || "Unknown error"}` },
+          { status: 500 }
+        );
       }
+    }
+
+    if (!coverImage) {
+      coverImage = "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800";
     }
 
     // Generate unique slug

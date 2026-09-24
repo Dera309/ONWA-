@@ -58,6 +58,33 @@ export async function GET(
     const resName = (license.resolution as any)?.name || "Original";
     const filename = `${artwork.slug}-${resName.toLowerCase()}${path.extname(heroImage) || ".png"}`;
 
+    // Handle data URL (base64 stored in database)
+    if (heroImage.startsWith("data:")) {
+      const commaIndex = heroImage.indexOf(",");
+      const meta = heroImage.substring(0, commaIndex);
+      const base64Data = heroImage.substring(commaIndex + 1);
+      const mimeMatch = meta.match(/data:([^;]+)/);
+      const contentType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+      const buffer = Buffer.from(base64Data, "base64");
+      const ext = contentType.split("/")[1] || "jpg";
+      const downloadFilename = `${artwork.slug}-${resName.toLowerCase()}.${ext}`;
+
+      // Record download
+      await recordDownload(license.id);
+      await prisma.artwork.update({
+        where: { id: artwork.id },
+        data: { downloadCount: { increment: 1 } },
+      });
+
+      return new NextResponse(buffer, {
+        headers: {
+          "Content-Type": contentType,
+          "Content-Disposition": `attachment; filename="${downloadFilename}"`,
+          "Content-Length": buffer.byteLength.toString(),
+        },
+      });
+    }
+
     // Handle remote URL (e.g. Unsplash or R2 public URL)
     if (heroImage.startsWith("http://") || heroImage.startsWith("https://")) {
       const imageRes = await fetch(heroImage);

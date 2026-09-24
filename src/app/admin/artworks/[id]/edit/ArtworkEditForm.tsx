@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { compressImageIfNeeded } from "@/lib/image-compressor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Status } from "@prisma/client";
 
@@ -61,6 +62,16 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
   const [collectionId, setCollectionId] = useState(artwork.collectionId);
   const [moonCycleId, setMoonCycleId] = useState(artwork.moonCycleId);
   const [status, setStatus] = useState<Status>(artwork.status);
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(artwork.heroImage || null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setHeroImageFile(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,6 +83,11 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
       formData.set("collectionId", collectionId);
       formData.set("moonCycleId", moonCycleId);
       formData.set("status", status);
+
+      if (heroImageFile) {
+        const compressed = await compressImageIfNeeded(heroImageFile);
+        formData.set("heroImage", compressed);
+      }
 
       const response = await fetch(`/api/admin/artworks/${artwork.id}`, {
         method: "PUT",
@@ -304,6 +320,30 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
             <SelectItem value="SCHEDULED">Scheduled</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="heroImage">Hero Image</Label>
+        {imagePreview && (
+          <div className="relative w-full max-w-sm h-48 rounded-lg overflow-hidden border border-border/40 bg-black/40 mb-2">
+            <img
+              src={imagePreview}
+              alt={artwork.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <Input
+          id="heroImage"
+          name="heroImage"
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="artwork-input"
+        />
+        <p className="text-xs text-muted-foreground">
+          Upload a new file to change the artwork's image, or leave empty to keep the current image.
+        </p>
       </div>
 
       <div className="space-y-2">

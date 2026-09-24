@@ -67,8 +67,12 @@ export async function PUT(
         const bytes = await coverImageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
         coverImage = await uploadFile(key, buffer, coverImageFile.type);
-      } catch (uploadError) {
+      } catch (uploadError: any) {
         console.error("Error uploading cover image:", uploadError);
+        return NextResponse.json(
+          { error: `Cover image upload failed: ${uploadError?.message || "Unknown error"}` },
+          { status: 500 }
+        );
       }
     }
 

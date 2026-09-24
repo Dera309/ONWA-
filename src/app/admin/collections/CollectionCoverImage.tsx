@@ -12,7 +12,7 @@ export function CollectionCoverImage({ src, alt }: CollectionCoverImageProps) {
   const [hasError, setHasError] = useState(false);
 
   const normalizedSrc = src
-    ? src.startsWith("http") || src.startsWith("/")
+    ? src.startsWith("http") || src.startsWith("/") || src.startsWith("data:")
       ? src
       : `/${src}`
     : null;

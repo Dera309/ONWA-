@@ -60,23 +60,19 @@ export async function POST(request: NextRequest) {
 
     // Handle image upload
     let heroImage = heroImageUrl;
-    if (heroImageFile) {
+    if (heroImageFile && heroImageFile.size > 0) {
       try {
-        // Generate a unique ID for the artwork (temporary, will be replaced with actual ID)
         const tempId = Date.now().toString();
-        const fileExtension = heroImageFile.name.split('.').pop() || 'jpg';
         const key = generateHeroImageKey(tempId, heroImageFile.name);
-        
-        // Convert file to buffer
         const bytes = await heroImageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        
-        // Upload file
         heroImage = await uploadFile(key, buffer, heroImageFile.type);
-      } catch (uploadError) {
+      } catch (uploadError: any) {
         console.error("Error uploading file:", uploadError);
-        // Fallback to placeholder if upload fails
-        heroImage = "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800";
+        return NextResponse.json(
+          { error: `Image upload failed: ${uploadError?.message || "Unknown error"}` },
+          { status: 500 }
+        );
       }
     }
 

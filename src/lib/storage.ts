@@ -38,36 +38,50 @@ export async function uploadFile(
     await s3Client.send(command);
     return `${PUBLIC_URL}/${key}`;
   } else {
-    // Fallback to local storage
-    const { writeFile, mkdir } = await import("fs/promises");
-    const { join } = await import("path");
-    const { existsSync } = await import("fs");
-    
-    if (!existsSync(LOCAL_STORAGE_PATH)) {
-      await mkdir(LOCAL_STORAGE_PATH, { recursive: true });
-    }
-    
-    const filePath = join(LOCAL_STORAGE_PATH, key);
-    const dirPath = join(LOCAL_STORAGE_PATH, key.split('/').slice(0, -1).join('/'));
-    
-    if (!existsSync(dirPath)) {
-      await mkdir(dirPath, { recursive: true });
-    }
-
+    // Convert body to Buffer
+    let buffer: Buffer;
     if (typeof body === 'string') {
-      await writeFile(filePath, body);
-    } else if (body instanceof Buffer || body instanceof Uint8Array) {
-      await writeFile(filePath, Buffer.from(body));
+      buffer = Buffer.from(body);
+    } else if (body instanceof Buffer) {
+      buffer = body;
+    } else if (body instanceof Uint8Array) {
+      buffer = Buffer.from(body);
     } else if (body instanceof Blob) {
       const arrayBuffer = await body.arrayBuffer();
-      await writeFile(filePath, Buffer.from(arrayBuffer));
+      buffer = Buffer.from(arrayBuffer);
+    } else {
+      buffer = Buffer.from(body as any);
     }
 
-    return `/uploads/${key}`;
+    // Attempt local storage write in non-serverless environments (best-effort, non-blocking)
+    if (!process.env.VERCEL) {
+      try {
+        const { writeFile, mkdir } = await import("fs/promises");
+        const { join } = await import("path");
+        const { existsSync } = await import("fs");
+
+        const dirPath = join(LOCAL_STORAGE_PATH, key.split('/').slice(0, -1).join('/'));
+        if (!existsSync(dirPath)) {
+          await mkdir(dirPath, { recursive: true });
+        }
+        await writeFile(join(LOCAL_STORAGE_PATH, key), buffer);
+      } catch (err) {
+        // Silently continue - base64 data URL provides 100% durability
+      }
+    }
+
+    // Return self-contained base64 data URL to ensure 100% persistence across serverless & all environments
+    const mime = contentType || "image/jpeg";
+    return `data:${mime};base64,${buffer.toString("base64")}`;
   }
 }
 
 export async function getSignedDownloadUrl(key: string, expiresIn = 3600) {
+  if (!key) return "";
+  if (key.startsWith("data:") || key.startsWith("http://") || key.startsWith("https://")) {
+    return key;
+  }
+
   if (isR2Configured && s3Client) {
     const command = new GetObjectCommand({
       Bucket: BUCKET_NAME,
@@ -82,6 +96,10 @@ export async function getSignedDownloadUrl(key: string, expiresIn = 3600) {
 }
 
 export async function deleteFile(key: string) {
+  if (!key || key.startsWith("data:") || key.startsWith("http://") || key.startsWith("https://")) {
+    return;
+  }
+
   if (isR2Configured && s3Client) {
     const command = new DeleteObjectCommand({
       Bucket: BUCKET_NAME,
