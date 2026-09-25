@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { getCurrentMoonPhase } from "@/config/moon-phases";
 import { AmbientAudioPlayer } from "@/components/shared/AmbientAudioPlayer";
+import { ProtectedArtworkImage } from "@/components/shared/ProtectedArtworkImage";
 
 export const metadata: Metadata = {
   title: "Museum Mode | ONWA",
@@ -45,14 +46,15 @@ export default function MuseumPage() {
       <section id="exhibition" className="py-20 md:py-32 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="artwork-mat">
-              <div className="aspect-[4/5] bg-surface-container-low flex items-center justify-center">
-                <div className="text-center">
-                  <p className="label-caps text-muted-foreground mb-4">Featured Artwork</p>
-                  <p className="museum-body text-body-md text-muted-foreground">
-                    The Moon Queen
-                  </p>
-                </div>
+            <div className="artwork-mat overflow-hidden rounded-xl border border-border/40 shadow-2xl">
+              <div className="aspect-[4/5] bg-surface-container-low flex items-center justify-center relative overflow-hidden group">
+                <ProtectedArtworkImage
+                  src="/hero-artwork.png"
+                  alt="The Moon Queen - ONWA Featured Masterwork"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                  containerClassName="w-full h-full flex items-center justify-center"
+                  watermarkText="ONWA · THE MOON QUEEN"
+                />
               </div>
             </div>
             <div className="space-y-8">
