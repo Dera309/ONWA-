@@ -1,56 +1,103 @@
 import { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 import { moonPhases } from "@/config/moon-phases";
+import { CollectionsClient, SerializedCollection } from "@/components/collections/CollectionsClient";
 
 export const metadata: Metadata = {
-  title: "Collections | ONWA",
-  description: "Explore ONWA's collections organized by moon cycles. Each collection represents a different phase of African storytelling and spiritual wisdom.",
+  title: "Curated Collections | ONWA",
+  description: "Explore ONWA's curated collections organized by moon cycles, ancestral kingdoms, and sacred traditions across Africa.",
 };
 
-export default function CollectionsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function CollectionsPage() {
+  let collections: SerializedCollection[] = [];
+  let dbError: string | null = null;
+
+  try {
+    const rawCollections = await prisma.collection.findMany({
+      where: {
+        status: "PUBLISHED",
+      },
+      include: {
+        moonCycle: {
+          select: {
+            id: true,
+            name: true,
+            phase: true,
+            description: true,
+          },
+        },
+        _count: {
+          select: {
+            artworks: {
+              where: {
+                status: "PUBLISHED",
+              },
+            },
+          },
+        },
+      },
+      orderBy: [
+        { featured: "desc" },
+        { createdAt: "desc" },
+      ],
+    });
+
+    collections = rawCollections.map((col) => ({
+      id: col.id,
+      slug: col.slug,
+      name: col.name,
+      description: col.description,
+      coverImage: col.coverImage,
+      coverImageAlt: col.coverImageAlt,
+      curatorNote: col.curatorNote,
+      region: col.region,
+      country: col.country,
+      era: col.era,
+      featured: col.featured,
+      artworkCount: col.artworkCount,
+      _count: col._count,
+      moonCycle: col.moonCycle,
+    }));
+  } catch (err) {
+    console.error("[CollectionsPage] Error fetching collections:", err);
+    dbError = err instanceof Error ? err.message : "Database error";
+  }
+
   return (
     <main className="min-h-screen bg-background pt-20">
-      {/* Collections Header */}
-      <section className="py-16 px-4 border-b border-border/20">
+      {/* Collections Hero Header */}
+      <section className="py-16 md:py-20 px-4 border-b border-border/20">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-12">
-            <p className="label-caps text-muted-foreground mb-4">Collections</p>
-            <h1 className="museum-heading text-headline-lg text-primary mb-6">
-              Moon Cycles
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="label-caps text-muted-foreground mb-3 text-xs tracking-widest">
+              Curated Sanctum
+            </p>
+            <h1 className="museum-heading text-display-md-mobile md:text-headline-lg text-primary mb-6">
+              Curated Collections & Moon Cycles
             </h1>
-            <p className="museum-body text-body-lg text-muted-foreground max-w-2xl mx-auto">
-              Our collections are organized by the phases of the moon, each representing 
-              different aspects of African storytelling and spiritual wisdom.
+            <p className="museum-body text-body-lg text-muted-foreground leading-relaxed">
+              Every collection on ONWA is rooted in the cyclical phases of the moon and ancestral African civilizations, binding oral lore, divine symbolism, and digital masterworks into living history.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Collections Grid */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {moonPhases.map((phase) => (
-              <div key={phase.id} className="artwork-mat group cursor-pointer hover:border-primary/50 transition-all duration-300">
-                <div className="aspect-square bg-surface-container-low mb-4 flex items-center justify-center p-6 relative overflow-hidden group-hover:bg-surface-container transition-colors duration-300">
-                  <img
-                    src={phase.image || "/images/lunar/full-moon.svg"}
-                    alt={phase.name}
-                    className="w-28 sm:w-36 h-28 sm:h-36 object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(212,175,55,0.25)]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-                <p className="label-caps text-primary text-xs mb-2 font-semibold">{phase.name}</p>
-                <h3 className="museum-heading text-headline-md text-primary mb-2">
-                  {phase.name}
-                </h3>
-                <p className="museum-body text-body-md text-muted-foreground">
-                  {phase.description}
-                </p>
-              </div>
-            ))}
+      {dbError && (
+        <div className="container mx-auto max-w-7xl px-4 mt-8">
+          <div className="p-4 border border-red-500/30 bg-red-500/10 text-red-400 text-sm rounded">
+            <p className="font-semibold mb-1">Notice</p>
+            <p className="text-xs">Unable to load live collections at this time. Please try refreshing.</p>
           </div>
         </div>
-      </section>
+      )}
+
+      {/* Interactive Collections & Lunar Explorer */}
+      <CollectionsClient
+        initialCollections={collections}
+        moonPhases={moonPhases}
+      />
     </main>
   );
 }
