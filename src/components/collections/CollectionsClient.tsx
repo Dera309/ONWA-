@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Sparkles, Layers, ArrowRight, Image as ImageIcon } from "lucide-react";
-import { CollectionCoverImage } from "@/app/admin/collections/CollectionCoverImage";
+import { CollectionCoverImage } from "@/components/shared/CollectionCoverImage";
 
 export interface SerializedCollection {
   id: string;

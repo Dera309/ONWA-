@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus, Sparkles, Image as ImageIcon } from "lucide-react";
 import DeleteCollectionButton from "./DeleteCollectionButton";
-import { CollectionCoverImage } from "./CollectionCoverImage";
+import { CollectionCoverImage } from "@/components/shared/CollectionCoverImage";
 
 export const metadata: Metadata = {
   title: "Collections | Curator Office | ONWA",

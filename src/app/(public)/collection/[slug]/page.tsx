@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArrowLeft, Sparkles, Layers } from "lucide-react";
 import { ProtectedArtworkImage } from "@/components/shared/ProtectedArtworkImage";
-import { CollectionCoverImage } from "@/app/admin/collections/CollectionCoverImage";
+import { CollectionCoverImage } from "@/components/shared/CollectionCoverImage";
 
 export const dynamic = "force-dynamic";
 
