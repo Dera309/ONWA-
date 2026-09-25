@@ -112,7 +112,7 @@ export default function RootLayout({
             <GoogleAnalytics />
             <MicrosoftClarity />
           </head>
-          <body className="font-sans antialiased">
+          <body className="font-sans antialiased" suppressHydrationWarning>
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
@@ -121,7 +121,7 @@ export default function RootLayout({
             >
               <ArtworkProtectionProvider>
                 <Header />
-                <main className="min-h-screen">{children}</main>
+                <div className="min-h-screen flex flex-col">{children}</div>
                 <Footer />
               </ArtworkProtectionProvider>
             </ThemeProvider>
