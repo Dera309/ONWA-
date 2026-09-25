@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { getCurrentMoonPhase } from "@/config/moon-phases";
 import { AmbientAudioPlayer } from "@/components/shared/AmbientAudioPlayer";
 import { ProtectedArtworkImage } from "@/components/shared/ProtectedArtworkImage";
+import { EnterExhibitionButton } from "@/components/museum/EnterExhibitionButton";
 
 export const metadata: Metadata = {
   title: "Museum Mode | ONWA",
@@ -32,18 +33,14 @@ export default function MuseumPage() {
                 <p className="label-caps text-muted-foreground text-xs">Current Phase</p>
               </div>
             </div>
-            <a 
-              href="#exhibition"
-              className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps text-xs sm:text-sm"
-            >
-              Enter Exhibition
-            </a>
+            
+            <EnterExhibitionButton targetId="exhibition" />
           </div>
         </div>
       </section>
 
       {/* Featured Artwork */}
-      <section id="exhibition" className="py-20 md:py-32 px-4">
+      <section id="exhibition" className="scroll-mt-24 py-20 md:py-32 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="artwork-mat overflow-hidden rounded-xl border border-border/40 shadow-2xl">
