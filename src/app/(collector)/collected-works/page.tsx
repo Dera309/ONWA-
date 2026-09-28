@@ -132,32 +132,63 @@ export default async function CollectedWorksPage() {
 
                     <div className="space-y-3 pt-2">
                       {canDownload ? (
-                        <a
-                          href={`/api/downloads/${license.id}`}
-                          download
-                          className="w-full inline-flex items-center justify-center px-4 py-3 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 label-caps text-xs font-semibold"
-                        >
-                          Download Artwork ({resName})
-                        </a>
+                        <div className="space-y-2">
+                          <a
+                            href={`/api/downloads/${license.id}?format=package`}
+                            download
+                            className="w-full inline-flex flex-col items-center justify-center px-4 py-2.5 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 rounded text-center"
+                          >
+                            <span className="label-caps text-xs font-semibold">Download Masterpiece Package</span>
+                            <span className="text-[10px] opacity-80 font-normal">Artwork ({resName}) + Story & Cultural Dossier (.zip)</span>
+                          </a>
+
+                          <div className="flex gap-2">
+                            <a
+                              href={`/api/downloads/${license.id}?format=dossier`}
+                              download
+                              className="flex-1 text-center py-1.5 px-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary transition-colors text-[11px] rounded font-medium"
+                              title="Download Story, Curator Note, Historical Context, Spiritual Meaning, and Alt Text"
+                            >
+                              📖 Story Dossier (.md)
+                            </a>
+                            <a
+                              href={`/api/downloads/${license.id}?format=image`}
+                              download
+                              className="flex-1 text-center py-1.5 px-2 border border-border/40 hover:border-primary text-muted-foreground hover:text-primary transition-colors text-[11px] rounded font-medium"
+                              title="Download high-resolution image only"
+                            >
+                              🖼️ Image Only
+                            </a>
+                          </div>
+                        </div>
                       ) : (
-                        <button
-                          disabled
-                          className="w-full inline-flex items-center justify-center px-4 py-3 bg-muted text-muted-foreground cursor-not-allowed label-caps text-xs opacity-60"
-                        >
-                          Download Limit Reached
-                        </button>
+                        <div className="space-y-2">
+                          <button
+                            disabled
+                            className="w-full inline-flex items-center justify-center px-4 py-3 bg-muted text-muted-foreground cursor-not-allowed label-caps text-xs opacity-60 rounded"
+                          >
+                            Download Limit Reached
+                          </button>
+                          <a
+                            href={`/api/downloads/${license.id}?format=dossier`}
+                            download
+                            className="block text-center py-1.5 px-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary transition-colors text-[11px] rounded font-medium"
+                          >
+                            📖 Download Story Dossier (.md)
+                          </a>
+                        </div>
                       )}
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 pt-1">
                         <Link
                           href={`/artwork/${license.artwork.slug}`}
-                          className="flex-1 text-center py-2 px-3 border border-border/30 hover:border-primary text-muted-foreground hover:text-primary transition-colors text-xs label-caps"
+                          className="flex-1 text-center py-2 px-3 border border-border/30 hover:border-primary text-muted-foreground hover:text-primary transition-colors text-xs label-caps rounded"
                         >
                           View Details
                         </Link>
                         <Link
                           href="/licenses"
-                          className="flex-1 text-center py-2 px-3 border border-border/30 hover:border-primary text-muted-foreground hover:text-primary transition-colors text-xs label-caps"
+                          className="flex-1 text-center py-2 px-3 border border-border/30 hover:border-primary text-muted-foreground hover:text-primary transition-colors text-xs label-caps rounded"
                         >
                           License Certificate
                         </Link>

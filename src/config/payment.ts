@@ -36,7 +36,44 @@ export const licenseTypes = {
 } as const;
 
 export const resolutions = [
-  { name: "Web", width: 1920, height: 1080, dpi: 72, priceMultiplier: 1 },
-  { name: "Print", width: 6000, height: 4000, dpi: 300, priceMultiplier: 2 },
-  { name: "Ultra", width: 12000, height: 8000, dpi: 300, priceMultiplier: 3 },
+  {
+    name: "High-Resolution Artwork",
+    label: "High-Resolution Artwork",
+    aspectRatio: "Master",
+    width: 4800,
+    height: 6000,
+    dpi: 300,
+    description: "Ultra high-resolution archival master file",
+    priceMultiplier: 1,
+  },
+  {
+    name: "4:5 print version",
+    label: "4:5 print version",
+    aspectRatio: "4:5",
+    width: 4000,
+    height: 5000,
+    dpi: 300,
+    description: "Standard ratio for 8×10, 16×20, 24×30 in prints",
+    priceMultiplier: 1,
+  },
+  {
+    name: "2:3 print version",
+    label: "2:3 print version",
+    aspectRatio: "2:3",
+    width: 4000,
+    height: 6000,
+    dpi: 300,
+    description: "Standard ratio for 4×6, 8×12, 12×18, 20×30, 24×36 in prints",
+    priceMultiplier: 1,
+  },
+  {
+    name: "3:4 print version",
+    label: "3:4 print version",
+    aspectRatio: "3:4",
+    width: 4500,
+    height: 6000,
+    dpi: 300,
+    description: "Standard ratio for 6×8, 9×12, 12×16, 18×24 in prints",
+    priceMultiplier: 1,
+  },
 ] as const;

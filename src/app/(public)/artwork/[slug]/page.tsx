@@ -88,9 +88,16 @@ export default async function ArtworkPage({ params }: ArtworkPageProps) {
     console.error("[ArtworkPage] Collector license check error:", err);
   }
 
-  const resolutions = Array.isArray(artwork.availableResolutions)
+  const defaultResolutions = [
+    { name: "High-Resolution Artwork", label: "High-Resolution Artwork", width: 4800, height: 6000, dpi: 300, priceMultiplier: 1 },
+    { name: "4:5 print version", label: "4:5 print version", width: 4000, height: 5000, dpi: 300, priceMultiplier: 1 },
+    { name: "2:3 print version", label: "2:3 print version", width: 4000, height: 6000, dpi: 300, priceMultiplier: 1 },
+    { name: "3:4 print version", label: "3:4 print version", width: 4500, height: 6000, dpi: 300, priceMultiplier: 1 },
+  ];
+
+  const resolutions = Array.isArray(artwork.availableResolutions) && artwork.availableResolutions.length > 0
     ? (artwork.availableResolutions as any[])
-    : [];
+    : defaultResolutions;
 
   return (
     <main className="min-h-screen bg-background pt-20">
@@ -182,7 +189,7 @@ export default async function ArtworkPage({ params }: ArtworkPageProps) {
               {/* Story */}
               <div className="border-t border-border/20 pt-8">
                 <p className="label-caps text-muted-foreground mb-4">Story</p>
-                <p className="museum-body text-body-md text-muted-foreground leading-relaxed">
+                <p className="museum-body text-body-md text-muted-foreground leading-relaxed whitespace-pre-line">
                   {artwork.story}
                 </p>
               </div>
@@ -191,7 +198,7 @@ export default async function ArtworkPage({ params }: ArtworkPageProps) {
               {artwork.curatorNote && (
                 <div className="border-t border-border/20 pt-8">
                   <p className="label-caps text-muted-foreground mb-4">Curator's Note</p>
-                  <p className="museum-body text-body-md text-muted-foreground leading-relaxed">
+                  <p className="museum-body text-body-md text-muted-foreground leading-relaxed whitespace-pre-line">
                     {artwork.curatorNote}
                   </p>
                 </div>
@@ -201,7 +208,7 @@ export default async function ArtworkPage({ params }: ArtworkPageProps) {
               {artwork.historicalContext && (
                 <div className="border-t border-border/20 pt-8">
                   <p className="label-caps text-muted-foreground mb-4">Historical Context</p>
-                  <p className="museum-body text-body-md text-muted-foreground leading-relaxed">
+                  <p className="museum-body text-body-md text-muted-foreground leading-relaxed whitespace-pre-line">
                     {artwork.historicalContext}
                   </p>
                 </div>
@@ -211,21 +218,46 @@ export default async function ArtworkPage({ params }: ArtworkPageProps) {
               {artwork.spiritualMeaning && (
                 <div className="border-t border-border/20 pt-8">
                   <p className="label-caps text-muted-foreground mb-4">Spiritual Meaning</p>
-                  <p className="museum-body text-body-md text-muted-foreground leading-relaxed">
+                  <p className="museum-body text-body-md text-muted-foreground leading-relaxed whitespace-pre-line">
                     {artwork.spiritualMeaning}
                   </p>
                 </div>
               )}
 
+              {/* Image Alt Text / Visual Description */}
+              {artwork.heroImageAlt && (
+                <div className="border-t border-border/20 pt-8">
+                  <p className="label-caps text-muted-foreground mb-4">Visual Description & Alt Text</p>
+                  <p className="museum-body text-body-md text-muted-foreground/90 leading-relaxed italic bg-surface-container-low/50 p-4 border border-border/20 rounded">
+                    "{artwork.heroImageAlt}"
+                  </p>
+                </div>
+              )}
+
+              {/* Included in Ritual Acquisition Info */}
+              <div className="border-t border-border/20 pt-8">
+                <div className="artwork-mat p-5 border border-primary/30 bg-primary/5 rounded space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary text-base">✨</span>
+                    <h4 className="label-caps text-xs text-primary font-semibold">
+                      Unlocked with Ritual Acquisition
+                    </h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Acquiring this masterpiece via <strong>Add to Ritual</strong> grants you lifetime access to download the <strong>High-Resolution Master</strong> or print versions (<strong>4:5</strong>, <strong>2:3</strong>, <strong>3:4</strong> at 300 DPI) alongside the complete <strong>Story</strong>, <strong>Curator Note</strong>, <strong>Historical Context</strong>, <strong>Spiritual Meaning</strong>, <strong>Image Alt Text</strong>, and verified Provenance Certificate in your Collector Vault.
+                  </p>
+                </div>
+              </div>
+
               {/* Available Resolutions */}
               {resolutions.length > 0 && (
                 <div className="border-t border-border/20 pt-8">
-                  <p className="label-caps text-muted-foreground mb-4">Available Resolutions</p>
+                  <p className="label-caps text-muted-foreground mb-4">Available Print Versions & Resolutions</p>
                   <div className="space-y-4">
                     {resolutions.map((res: any, i: number) => (
                       <div key={i} className="flex items-center justify-between py-2 border-b border-border/10 last:border-0">
                         <div>
-                          <p className="museum-body text-body-md text-primary">{res.label || `${res.width} × ${res.height}`}</p>
+                          <p className="museum-body text-body-md text-primary">{res.label || res.name || `${res.width} × ${res.height}`}</p>
                           <p className="museum-body text-body-sm text-muted-foreground">
                             {res.width} × {res.height}{res.dpi ? ` • ${res.dpi} DPI` : ""}
                           </p>

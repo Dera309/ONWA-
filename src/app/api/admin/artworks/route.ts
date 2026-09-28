@@ -116,7 +116,10 @@ export async function POST(request: NextRequest) {
         price,
         currency: "USD",
         availableResolutions: [
-          { width: 1920, height: 2400, dpi: 300, priceMultiplier: 1 },
+          { name: "High-Resolution Artwork", label: "High-Resolution Artwork", width: 4800, height: 6000, dpi: 300, priceMultiplier: 1 },
+          { name: "4:5 print version", label: "4:5 print version", width: 4000, height: 5000, dpi: 300, priceMultiplier: 1 },
+          { name: "2:3 print version", label: "2:3 print version", width: 4000, height: 6000, dpi: 300, priceMultiplier: 1 },
+          { name: "3:4 print version", label: "3:4 print version", width: 4500, height: 6000, dpi: 300, priceMultiplier: 1 },
         ],
         status: Status.DRAFT,
         publishedAt: null,

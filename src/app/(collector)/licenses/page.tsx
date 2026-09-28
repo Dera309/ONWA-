@@ -121,17 +121,37 @@ export default async function LicensesPage() {
                       </span>
 
                       {canDownload ? (
-                        <a
-                          href={`/api/downloads/${license.id}`}
-                          download
-                          className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground hover:opacity-90 transition-all label-caps text-xs font-semibold"
-                        >
-                          Download File
-                        </a>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          <a
+                            href={`/api/downloads/${license.id}?format=package`}
+                            download
+                            className="inline-flex items-center justify-center px-3.5 py-2 bg-primary text-primary-foreground hover:opacity-90 transition-all label-caps text-xs font-semibold rounded"
+                            title="Download ZIP package containing Artwork Image, Story, Curator Note, Historical Context, Spiritual Meaning, and Alt Text"
+                          >
+                            📦 Download Package (.zip)
+                          </a>
+                          <a
+                            href={`/api/downloads/${license.id}?format=dossier`}
+                            download
+                            className="inline-flex items-center justify-center px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary transition-all text-xs font-medium rounded"
+                            title="Download Story, Curator Note, Historical Context, and Spiritual Meaning as Markdown"
+                          >
+                            📖 Story Dossier
+                          </a>
+                        </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground">
-                          Limit reached
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">
+                            Limit reached
+                          </span>
+                          <a
+                            href={`/api/downloads/${license.id}?format=dossier`}
+                            download
+                            className="inline-flex items-center justify-center px-2.5 py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary transition-all text-xs font-medium rounded"
+                          >
+                            📖 Story Dossier
+                          </a>
+                        </div>
                       )}
                     </div>
                   </div>

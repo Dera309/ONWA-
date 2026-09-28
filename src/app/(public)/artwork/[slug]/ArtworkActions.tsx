@@ -171,23 +171,30 @@ export default function ArtworkActions({
       {/* Resolution selector */}
       {resolutions.length > 0 && (
         <div>
-          <p className="label-caps text-muted-foreground mb-3">Resolution</p>
+          <p className="label-caps text-muted-foreground mb-3">Print Version & Aspect Ratio</p>
           <div className="space-y-2">
             {resolutions.map((res) => {
               const name = res.name || res.label || `${res.width}×${res.height}`;
               const resPrice = price * (res.priceMultiplier ?? 1) * (licenseMeta?.multiplier ?? 1);
+              const isSelected = selectedResolution.toLowerCase() === name.toLowerCase();
+
               return (
                 <button
                   key={name}
                   onClick={() => setSelectedResolution(name)}
-                  className={`w-full flex justify-between items-center px-4 py-3 border transition-colors text-sm ${
-                    selectedResolution === name
-                      ? "border-primary text-primary"
+                  className={`w-full text-left px-4 py-3 border transition-colors rounded ${
+                    isSelected
+                      ? "border-primary bg-primary/5 text-primary"
                       : "border-border/20 text-muted-foreground hover:border-primary/50"
                   }`}
                 >
-                  <span>{name} — {res.width}×{res.height}{res.dpi ? ` · ${res.dpi}dpi` : ""}</span>
-                  <span>${resPrice.toFixed(2)}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-sm text-foreground">{name}</span>
+                    <span className="font-semibold text-primary">${resPrice.toFixed(2)}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {res.width} × {res.height} px{res.dpi ? ` · ${res.dpi} DPI` : " · 300 DPI"}
+                  </p>
                 </button>
               );
             })}
@@ -208,25 +215,63 @@ export default function ArtworkActions({
               <button
                 key={opt.value}
                 onClick={() => setSelectedLicense(opt.value)}
-                className={`w-full flex justify-between items-center px-4 py-3 border transition-colors text-sm ${
+                className={`w-full flex justify-between items-center px-4 py-3 border transition-colors text-sm rounded ${
                   selectedLicense === opt.value
-                    ? "border-primary text-primary"
+                    ? "border-primary bg-primary/5 text-primary"
                     : "border-border/20 text-muted-foreground hover:border-primary/50"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <span>{opt.label}</span>
+                  <span className="text-foreground">{opt.label}</span>
                   {isOwned && (
                     <span className="px-1.5 py-0.5 text-[10px] bg-primary/20 text-primary border border-primary/30 rounded font-mono">
                       OWNED
                     </span>
                   )}
                 </span>
-                <span>${(price * (resolutionMeta?.priceMultiplier ?? 1) * opt.multiplier).toFixed(2)}</span>
+                <span className="font-semibold text-primary">${(price * (resolutionMeta?.priceMultiplier ?? 1) * opt.multiplier).toFixed(2)}</span>
               </button>
             );
           })}
         </div>
+      </div>
+
+      {/* What's included in Ritual Acquisition */}
+      <div className="bg-surface-container-low/60 border border-primary/20 rounded p-4 space-y-2.5">
+        <p className="label-caps text-[11px] text-primary font-semibold flex items-center gap-1.5">
+          <span>✨</span>
+          <span>Included in Ritual Acquisition Package:</span>
+        </p>
+        <ul className="text-xs text-muted-foreground/90 space-y-1.5">
+          <li className="flex items-center gap-2">
+            <span className="text-primary font-bold">✓</span>
+            <span><strong>{selectedResolution}</strong> (300 DPI Ultra High-Res Master Print File)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-primary font-bold">✓</span>
+            <span><strong>Story</strong> (Ancestral mythology & narrative)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-primary font-bold">✓</span>
+            <span><strong>Curator Note</strong> (Museum curatorial perspective)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-primary font-bold">✓</span>
+            <span><strong>Historical Context</strong> (Era, traditions & origins)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-primary font-bold">✓</span>
+            <span><strong>Spiritual Meaning</strong> (Cosmology & sacred symbolism)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-primary font-bold">✓</span>
+            <span><strong>Image Alt Text</strong> (Detailed visual description)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-primary font-bold">✓</span>
+            <span><strong>Cryptographic Provenance License</strong> with lifetime Vault access</span>
+          </li>
+        </ul>
       </div>
 
       {/* Total or Owned Banner */}
@@ -243,7 +288,7 @@ export default function ArtworkActions({
           </div>
           <Link
             href="/collected-works"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-xs font-semibold label-caps hover:opacity-90 transition-opacity shrink-0"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-xs font-semibold label-caps hover:opacity-90 transition-opacity shrink-0 rounded"
           >
             <span>View Works</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -266,26 +311,37 @@ export default function ArtworkActions({
       {/* Action buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         {isLicenseOwned ? (
-          <Link
-            href="/collected-works"
-            className="flex-1 inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 label-caps text-xs sm:text-sm font-semibold gap-2 text-center"
-          >
-            <span>Access in Collected Works</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="flex-1 flex flex-col sm:flex-row gap-2">
+            {ownedLicenses.length > 0 && (
+              <a
+                href={`/api/downloads/${(ownedLicenses.find((l) => l.type === selectedLicense) || ownedLicenses[0]).id}?format=package`}
+                download
+                className="flex-1 inline-flex items-center justify-center px-4 py-3.5 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 label-caps text-xs sm:text-sm font-semibold gap-2 text-center rounded"
+              >
+                <span>📦 Download Masterpiece Package (.zip)</span>
+              </a>
+            )}
+            <Link
+              href="/collected-works"
+              className="inline-flex items-center justify-center px-4 py-3.5 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps text-xs sm:text-sm font-semibold gap-1.5 text-center rounded"
+            >
+              <span>Collected Works</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         ) : (
           <button
             onClick={handleAddToRitual}
             disabled={isLoading}
-            className="flex-1 inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 label-caps text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed rounded font-semibold"
           >
-            {isLoading ? "Processing..." : "Add to Ritual"}
+            {isLoading ? "Processing Ritual..." : `Add to Ritual — $${totalPrice.toFixed(2)}`}
           </button>
         )}
         <button
           onClick={handleFutureCollection}
           disabled={wishlistLoading || wishlistAdded}
-          className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300 label-caps text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300 label-caps text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed rounded"
         >
           {wishlistAdded ? "✓ Saved" : wishlistLoading ? "Saving..." : "Future Collection"}
         </button>

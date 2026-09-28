@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, Moon, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserButton, SignInButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 
@@ -99,9 +99,9 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="default" className="label-caps text-sm">
+              <span className={cn(buttonVariants({ variant: "default" }), "label-caps text-sm cursor-pointer")}>
                 Sign In
-              </Button>
+              </span>
             </SignInButton>
           </SignedOut>
         </div>
@@ -153,9 +153,9 @@ export function Header() {
             </SignedIn>
             <SignedOut>
               <SignInButton mode="modal">
-                <Button variant="default" className="label-caps text-sm">
+                <span className={cn(buttonVariants({ variant: "default" }), "label-caps text-sm cursor-pointer")}>
                   Sign In
-                </Button>
+                </span>
               </SignInButton>
             </SignedOut>
           </div>
