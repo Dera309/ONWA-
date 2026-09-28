@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, Moon, Search } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -40,7 +40,7 @@ function NavigationItems({ pathname }: { pathname: string }) {
   );
 }
 
-function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pathname: string; mobileMenuOpen: boolean; setMobileMenuOpen: (open: boolean) => void }) {
+function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen, mounted }: { pathname: string; mobileMenuOpen: boolean; setMobileMenuOpen: (open: boolean) => void; mounted: boolean }) {
   const { user } = useUser();
   const isCurator = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === "chideraobia7@gmail.com";
 
@@ -78,32 +78,38 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
               <Search className="w-5 h-5" />
             </Link>
           </Button>
-          <SignedIn>
-            {isCurator && (
-              <Link
-                href="/admin/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="label-caps text-xs text-primary transition-colors px-3 py-1.5 rounded bg-primary/10 border border-primary/20"
-              >
-                Curator's Office
-              </Link>
-            )}
-            <Link
-              href="/collected-works"
-              onClick={() => setMobileMenuOpen(false)}
-              className="label-caps text-xs text-muted-foreground hover:text-primary transition-colors px-3 py-1.5 rounded border border-border/40"
-            >
-              Vault
-            </Link>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          <SignedOut>
-            <SignInButton mode="modal">
-              <span className={cn(buttonVariants({ variant: "default" }), "label-caps text-sm cursor-pointer")}>
-                Sign In
-              </span>
-            </SignInButton>
-          </SignedOut>
+          {!mounted ? (
+            <div className="h-9 w-20" />
+          ) : (
+            <>
+              <SignedIn>
+                {isCurator && (
+                  <Link
+                    href="/admin/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="label-caps text-xs text-primary transition-colors px-3 py-1.5 rounded bg-primary/10 border border-primary/20"
+                  >
+                    Curator's Office
+                  </Link>
+                )}
+                <Link
+                  href="/collected-works"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="label-caps text-xs text-muted-foreground hover:text-primary transition-colors px-3 py-1.5 rounded border border-border/40"
+                >
+                  Vault
+                </Link>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <span className={cn(buttonVariants({ variant: "default" }), "label-caps text-sm cursor-pointer")}>
+                    Sign In
+                  </span>
+                </SignInButton>
+              </SignedOut>
+            </>
+          )}
         </div>
       </nav>
     </div>
@@ -113,8 +119,13 @@ function MobileNavigation({ pathname, mobileMenuOpen, setMobileMenuOpen }: { pat
 export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user } = useUser();
   const isCurator = user?.primaryEmailAddress?.emailAddress?.toLowerCase() === "chideraobia7@gmail.com";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/20">
@@ -140,24 +151,30 @@ export function Header() {
                 <Search className="w-5 h-5" />
               </Link>
             </Button>
-            <SignedIn>
-              {isCurator && (
-                <Link
-                  href="/admin/dashboard"
-                  className="label-caps text-xs text-primary hover:text-primary transition-colors px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 border border-primary/30 font-medium"
-                >
-                  Curator
-                </Link>
-              )}
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <span className={cn(buttonVariants({ variant: "default" }), "label-caps text-sm cursor-pointer")}>
-                  Sign In
-                </span>
-              </SignInButton>
-            </SignedOut>
+            {!mounted ? (
+              <div className="h-10 w-24" />
+            ) : (
+              <>
+                <SignedIn>
+                  {isCurator && (
+                    <Link
+                      href="/admin/dashboard"
+                      className="label-caps text-xs text-primary hover:text-primary transition-colors px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 border border-primary/30 font-medium"
+                    >
+                      Curator
+                    </Link>
+                  )}
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <span className={cn(buttonVariants({ variant: "default" }), "label-caps text-sm cursor-pointer")}>
+                      Sign In
+                    </span>
+                  </SignInButton>
+                </SignedOut>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -175,6 +192,7 @@ export function Header() {
         pathname={pathname} 
         mobileMenuOpen={mobileMenuOpen} 
         setMobileMenuOpen={setMobileMenuOpen} 
+        mounted={mounted}
       />
     </header>
   );

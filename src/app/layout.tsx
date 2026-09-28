@@ -100,33 +100,33 @@ export default function RootLayout({
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
       <html lang="en" className="dark" suppressHydrationWarning>
-          <head>
-            {/* Preconnect to Google Fonts for faster loading */}
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            {/* Load fonts via browser <link> to avoid server-side fetch failures */}
-            <link
-              href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
-              rel="stylesheet"
-            />
-            <GoogleAnalytics />
-            <MicrosoftClarity />
-          </head>
-          <body className="font-sans antialiased" suppressHydrationWarning>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <ArtworkProtectionProvider>
-                <Header />
-                <div className="min-h-screen flex flex-col">{children}</div>
-                <Footer />
-              </ArtworkProtectionProvider>
-            </ThemeProvider>
-          </body>
-        </html>
+        <head>
+          {/* Preconnect to Google Fonts for faster loading */}
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          {/* Load fonts via browser <link> to avoid server-side fetch failures */}
+          <link
+            href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+          />
+        </head>
+        <body className="font-sans antialiased" suppressHydrationWarning>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ArtworkProtectionProvider>
+              <Header />
+              <div className="min-h-screen flex flex-col">{children}</div>
+              <Footer />
+            </ArtworkProtectionProvider>
+          </ThemeProvider>
+          <GoogleAnalytics />
+          <MicrosoftClarity />
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
