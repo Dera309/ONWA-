@@ -5,8 +5,8 @@
 
 export async function compressImageIfNeeded(
   file: File,
-  maxSizeBytes = 3.5 * 1024 * 1024, // 3.5 MB (stays comfortably within Vercel's 4.5MB ceiling)
-  maxDimension = 2560
+  maxSizeBytes = 2.0 * 1024 * 1024, // 2.0 MB (well within Vercel's 4.5MB ceiling)
+  maxDimension = 2048
 ): Promise<File> {
   // If file is already under limit or not an image, return as-is
   if (file.size <= maxSizeBytes || !file.type.startsWith("image/")) {
@@ -26,55 +26,67 @@ export async function compressImageIfNeeded(
       const img = new Image();
       img.src = event.target?.result as string;
 
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
+      img.onload = async () => {
+        let currentWidth = img.width;
+        let currentHeight = img.height;
 
-        // Scale down if dimensions exceed maxDimension
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height * maxDimension) / width);
-            width = maxDimension;
+        // Initial scale down if dimensions exceed maxDimension
+        if (currentWidth > maxDimension || currentHeight > maxDimension) {
+          if (currentWidth > currentHeight) {
+            currentHeight = Math.round((currentHeight * maxDimension) / currentWidth);
+            currentWidth = maxDimension;
           } else {
-            width = Math.round((width * maxDimension) / height);
-            height = maxDimension;
+            currentWidth = Math.round((currentWidth * maxDimension) / currentHeight);
+            currentHeight = maxDimension;
           }
         }
 
         const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           return resolve(file);
         }
 
-        // Draw image onto canvas
-        ctx.drawImage(img, 0, 0, width, height);
+        // Output format: WebP gives superior compression efficiency
+        const outputType = "image/webp";
+        let quality = 0.85;
+        let bestBlob: Blob | null = null;
 
-        // Determine best output format
-        const outputType = file.type === "image/png" ? "image/webp" : file.type;
-        const quality = 0.88;
+        // Multi-pass iterative compression (up to 4 passes) to guarantee payload fits within server limits
+        for (let pass = 0; pass < 4; pass++) {
+          canvas.width = currentWidth;
+          canvas.height = currentHeight;
+          ctx.clearRect(0, 0, currentWidth, currentHeight);
+          ctx.drawImage(img, 0, 0, currentWidth, currentHeight);
 
-        canvas.toBlob(
-          (blob) => {
-            if (!blob || blob.size >= file.size) {
-              // If compression didn't reduce size, fallback to original
-              return resolve(file);
-            }
+          const blob: Blob | null = await new Promise((res) => {
+            canvas.toBlob((b) => res(b), outputType, quality);
+          });
 
-            const cleanFileName = file.name.replace(/\.[^/.]+$/, "") + (outputType === "image/webp" ? ".webp" : ".jpg");
-            const compressedFile = new File([blob], cleanFileName, {
-              type: outputType,
-              lastModified: Date.now(),
-            });
+          if (!blob) break;
+          bestBlob = blob;
 
-            resolve(compressedFile);
-          },
-          outputType,
-          quality
-        );
+          // If safely under target size, we are good
+          if (blob.size <= maxSizeBytes) {
+            break;
+          }
+
+          // Otherwise reduce quality and dimensions for next pass
+          quality = Math.max(0.55, quality - 0.15);
+          currentWidth = Math.round(currentWidth * 0.8);
+          currentHeight = Math.round(currentHeight * 0.8);
+        }
+
+        if (bestBlob && bestBlob.size < file.size) {
+          const cleanFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+          const compressedFile = new File([bestBlob], cleanFileName, {
+            type: outputType,
+            lastModified: Date.now(),
+          });
+          resolve(compressedFile);
+        } else {
+          resolve(file);
+        }
       };
 
       img.onerror = () => {

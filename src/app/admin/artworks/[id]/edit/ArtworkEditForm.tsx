@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,7 @@ interface ArtworkEditFormProps {
 
 export default function ArtworkEditForm({ artwork, collections, moonCycles }: ArtworkEditFormProps) {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -64,6 +65,10 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
   const [status, setStatus] = useState<Status>(artwork.status);
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(artwork.heroImage || null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -79,6 +84,14 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
     setError(null);
 
     try {
+      const audioInput = e.currentTarget.elements.namedItem("ambientAudio") as HTMLInputElement;
+      const audioFile = audioInput?.files?.[0];
+      if (audioFile && audioFile.size > 3.5 * 1024 * 1024) {
+        throw new Error(
+          `The ambient audio file (${(audioFile.size / (1024 * 1024)).toFixed(1)} MB) exceeds the 3.5MB limit. Please upload an MP3 under 3.5MB.`
+        );
+      }
+
       const formData = new FormData(e.currentTarget);
       formData.set("collectionId", collectionId);
       formData.set("moonCycleId", moonCycleId);
@@ -99,14 +112,14 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
         errorData = await response.json();
       } catch {
         if (response.status === 413) {
-          throw new Error("File payload is too large (HTTP 413). Please upload files under 4.5MB.");
+          throw new Error("File payload is too large (HTTP 413). Please upload files under 3.5MB.");
         }
         throw new Error(`Server returned HTTP ${response.status}`);
       }
 
       if (!response.ok) {
         if (response.status === 413) {
-          throw new Error("File payload is too large (HTTP 413). Please upload files under 4.5MB.");
+          throw new Error("File payload is too large (HTTP 413). Please upload files under 3.5MB.");
         }
         throw new Error(errorData.error || `Failed to update artwork (HTTP ${response.status})`);
       }
@@ -196,34 +209,46 @@ export default function ArtworkEditForm({ artwork, collections, moonCycles }: Ar
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="collection">Collection *</Label>
-          <Select value={collectionId} onValueChange={setCollectionId}>
-            <SelectTrigger className="artwork-input">
-              <SelectValue placeholder="Select collection" />
-            </SelectTrigger>
-            <SelectContent>
-              {collections.map((col) => (
-                <SelectItem key={col.id} value={col.id}>
-                  {col.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!isMounted ? (
+            <div className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground flex items-center">
+              Select collection
+            </div>
+          ) : (
+            <Select value={collectionId || undefined} onValueChange={setCollectionId}>
+              <SelectTrigger className="artwork-input">
+                <SelectValue placeholder="Select collection" />
+              </SelectTrigger>
+              <SelectContent>
+                {collections.map((col) => (
+                  <SelectItem key={col.id} value={col.id}>
+                    {col.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="moonCycle">Moon Cycle *</Label>
-          <Select value={moonCycleId} onValueChange={setMoonCycleId}>
-            <SelectTrigger className="artwork-input">
-              <SelectValue placeholder="Select moon cycle" />
-            </SelectTrigger>
-            <SelectContent>
-              {moonCycles.map((mc) => (
-                <SelectItem key={mc.id} value={mc.id}>
-                  {mc.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!isMounted ? (
+            <div className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground flex items-center">
+              Select moon cycle
+            </div>
+          ) : (
+            <Select value={moonCycleId || undefined} onValueChange={setMoonCycleId}>
+              <SelectTrigger className="artwork-input">
+                <SelectValue placeholder="Select moon cycle" />
+              </SelectTrigger>
+              <SelectContent>
+                {moonCycles.map((mc) => (
+                  <SelectItem key={mc.id} value={mc.id}>
+                    {mc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
 

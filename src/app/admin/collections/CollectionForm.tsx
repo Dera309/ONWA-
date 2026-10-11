@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,9 +51,14 @@ export default function CollectionForm({
   isEditing = false,
 }: CollectionFormProps) {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const [name, setName] = useState(collection?.name || "");
   const [description, setDescription] = useState(collection?.description || "");
@@ -222,35 +227,47 @@ export default function CollectionForm({
             <Label htmlFor="moonCycleId" className="text-xs label-caps">
               Associated Moon Cycle *
             </Label>
-            <Select value={moonCycleId} onValueChange={setMoonCycleId} required>
-              <SelectTrigger className="mt-1.5">
-                <SelectValue placeholder="Select a moon cycle" />
-              </SelectTrigger>
-              <SelectContent>
-                {moonCycles.map((cycle) => (
-                  <SelectItem key={cycle.id} value={cycle.id}>
-                    {cycle.name} ({cycle.phase})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {!isMounted ? (
+              <div className="mt-1.5 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground flex items-center">
+                Select a moon cycle
+              </div>
+            ) : (
+              <Select value={moonCycleId || undefined} onValueChange={setMoonCycleId} required>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select a moon cycle" />
+                </SelectTrigger>
+                <SelectContent>
+                  {moonCycles.map((cycle) => (
+                    <SelectItem key={cycle.id} value={cycle.id}>
+                      {cycle.name} ({cycle.phase})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div>
             <Label htmlFor="status" className="text-xs label-caps">
               Publishing Status
             </Label>
-            <Select value={status} onValueChange={(val) => setStatus(val as Status)}>
-              <SelectTrigger className="mt-1.5">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PUBLISHED">Published</SelectItem>
-                <SelectItem value="DRAFT">Draft</SelectItem>
-                <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                <SelectItem value="ARCHIVED">Archived</SelectItem>
-              </SelectContent>
-            </Select>
+            {!isMounted ? (
+              <div className="mt-1.5 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground flex items-center">
+                Select status
+              </div>
+            ) : (
+              <Select value={status} onValueChange={(val) => setStatus(val as Status)}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PUBLISHED">Published</SelectItem>
+                  <SelectItem value="DRAFT">Draft</SelectItem>
+                  <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                  <SelectItem value="ARCHIVED">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </div>
 

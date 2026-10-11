@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Upload new artwork to the ONWA digital museum",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function UploadArtworkPage() {
   // Fetch collections for the dropdown
   let collections: { id: string; name: string; slug: string }[] = [];

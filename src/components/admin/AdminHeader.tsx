@@ -52,6 +52,11 @@ const secondaryNavItems = [
 export function AdminHeader({ adminName, adminEmail }: AdminHeaderProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close mobile drawer on route changes
   useEffect(() => {
@@ -143,8 +148,12 @@ export function AdminHeader({ adminName, adminEmail }: AdminHeaderProps) {
             )}
 
             {/* Clerk User Button */}
-            <div className="flex items-center">
-              <UserButton afterSignOutUrl="/" />
+            <div className="flex items-center min-w-[32px] min-h-[32px]">
+              {mounted ? (
+                <UserButton afterSignOutUrl="/" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-muted/40 animate-pulse" />
+              )}
             </div>
 
             {/* Mobile Hamburger Button */}

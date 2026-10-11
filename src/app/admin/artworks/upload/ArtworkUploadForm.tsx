@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +28,21 @@ interface ArtworkUploadFormProps {
 
 export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUploadFormProps) {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadStage, setUploadStage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [collectionId, setCollectionId] = useState<string>("");
   const [moonCycleId, setMoonCycleId] = useState<string>("");
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
     const file = e.target.files?.[0] || null;
     setHeroImageFile(file);
     if (file) {
@@ -45,17 +52,37 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
     }
   };
 
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    const file = e.target.files?.[0] || null;
+    if (file && file.size > 3.5 * 1024 * 1024) {
+      setError(
+        `Selected audio file (${(file.size / (1024 * 1024)).toFixed(1)} MB) is too large. Ambient soundscapes must be under 3.5MB to prevent upload failures.`
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Validate audio file size before building FormData
+      const audioInput = e.currentTarget.elements.namedItem("ambientAudio") as HTMLInputElement;
+      const audioFile = audioInput?.files?.[0];
+      if (audioFile && audioFile.size > 3.5 * 1024 * 1024) {
+        throw new Error(
+          `The ambient audio file "${audioFile.name}" (${(audioFile.size / (1024 * 1024)).toFixed(1)} MB) exceeds the 3.5MB maximum payload limit. Please select an MP3 under 3.5MB.`
+        );
+      }
+
       const formData = new FormData(e.currentTarget);
       formData.set("collectionId", collectionId);
       formData.set("moonCycleId", moonCycleId);
       
       if (heroImageFile) {
+        setUploadStage("Optimizing image for museum archival...");
         const compressed = await compressImageIfNeeded(heroImageFile);
         formData.set("heroImage", compressed);
         formData.delete("heroImageUrl");
@@ -63,6 +90,7 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
         formData.set("heroImageUrl", "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800");
       }
 
+      setUploadStage("Archiving artwork to museum database...");
       const response = await fetch("/api/admin/artworks", {
         method: "POST",
         body: formData,
@@ -75,7 +103,7 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
           errorMessage = errorData.error || errorMessage;
         } catch {
           if (response.status === 413) {
-            errorMessage = "Image file is too large (413 Payload Too Large). Please upload an image under 4MB.";
+            errorMessage = "Upload payload is too large (HTTP 413). Please ensure your image and audio files are under 3.5MB.";
           } else {
             errorMessage = `Server error (${response.status})`;
           }
@@ -85,9 +113,10 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
 
       router.push("/admin/artworks");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "An error occurred during upload");
     } finally {
       setIsSubmitting(false);
+      setUploadStage("");
     }
   };
 
@@ -159,10 +188,11 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
             name="ambientAudio" 
             type="file" 
             accept="audio/*,.mp3,.wav,.ogg,.m4a"
+            onChange={handleAudioChange}
             className="mt-1" 
           />
           <p className="text-sm text-muted-foreground mt-1">
-            Upload an MP3/WAV ambient soundscape for this artwork (optional)
+            Upload an MP3/WAV ambient soundscape (max 3.5MB, optional)
           </p>
         </div>
       </div>
@@ -198,34 +228,46 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
         
         <div>
           <Label htmlFor="collectionId">Collection *</Label>
-          <Select value={collectionId} onValueChange={setCollectionId} required>
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Select a collection" />
-            </SelectTrigger>
-            <SelectContent>
-              {collections.map((collection) => (
-                <SelectItem key={collection.id} value={collection.id}>
-                  {collection.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!isMounted ? (
+            <div className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground flex items-center">
+              Select a collection
+            </div>
+          ) : (
+            <Select value={collectionId || undefined} onValueChange={setCollectionId} required>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select a collection" />
+              </SelectTrigger>
+              <SelectContent>
+                {collections.map((collection) => (
+                  <SelectItem key={collection.id} value={collection.id}>
+                    {collection.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div>
           <Label htmlFor="moonCycleId">Moon Cycle *</Label>
-          <Select value={moonCycleId} onValueChange={setMoonCycleId} required>
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Select a moon cycle" />
-            </SelectTrigger>
-            <SelectContent>
-              {moonCycles.map((cycle) => (
-                <SelectItem key={cycle.id} value={cycle.id}>
-                  {cycle.name} ({cycle.phase})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!isMounted ? (
+            <div className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground flex items-center">
+              Select a moon cycle
+            </div>
+          ) : (
+            <Select value={moonCycleId || undefined} onValueChange={setMoonCycleId} required>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select a moon cycle" />
+              </SelectTrigger>
+              <SelectContent>
+                {moonCycles.map((cycle) => (
+                  <SelectItem key={cycle.id} value={cycle.id}>
+                    {cycle.name} ({cycle.phase})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div>
@@ -272,7 +314,7 @@ export default function ArtworkUploadForm({ collections, moonCycles }: ArtworkUp
       {/* Actions */}
       <div className="flex gap-4">
         <Button type="submit" disabled={isSubmitting} className="flex-1">
-          {isSubmitting ? "Uploading..." : "Upload Artwork"}
+          {isSubmitting ? (uploadStage || "Uploading...") : "Upload Artwork"}
         </Button>
         <Button 
           type="button" 
