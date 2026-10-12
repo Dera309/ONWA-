@@ -20,6 +20,7 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
   const [isShieldActive, setIsShieldActive] = useState(false);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const touchTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const shieldTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const showWarningToast = useCallback((msg = "Artwork Protected — Screenshots, recording, and image extraction are restricted by ONWA Museum DRM.") => {
     setWarningMessage(msg);
@@ -31,19 +32,37 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
   const triggerProtectionShield = useCallback((reason?: string) => {
     setIsShieldActive(true);
     showWarningToast(reason);
-    setTimeout(() => {
+
+    if (shieldTimeoutRef.current) {
+      clearTimeout(shieldTimeoutRef.current);
+    }
+
+    shieldTimeoutRef.current = setTimeout(() => {
       setIsShieldActive(false);
-    }, 2500);
+    }, 2800);
   }, [showWarningToast]);
+
+  // Synchronize dynamic CSS scramble filter to root document element
+  useEffect(() => {
+    if (isShieldActive) {
+      document.documentElement.classList.add("drm-capture-scramble");
+    } else {
+      document.documentElement.classList.remove("drm-capture-scramble");
+    }
+
+    return () => {
+      document.documentElement.classList.remove("drm-capture-scramble");
+    };
+  }, [isShieldActive]);
 
   useEffect(() => {
     // 1. Intercept Screenshot & Developer Tool Keyboard Shortcuts
     const handleKeyDown = (e: KeyboardEvent) => {
       // PrintScreen / PrtScn
       if (e.key === "PrintScreen" || e.code === "PrintScreen") {
-        triggerProtectionShield("Screenshot blocked by ONWA Museum DRM.");
+        triggerProtectionShield("Screenshot blocked & blurred by ONWA Museum DRM.");
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText("Protected Artwork — ONWA Digital Museum").catch(() => {});
+          navigator.clipboard.writeText("UNAUTHORIZED SCREENSHOT ATTEMPT BLOCKED — ONWA DIGITAL MUSEUM COPYRIGHT").catch(() => {});
         }
       }
 
@@ -53,13 +72,13 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
         e.shiftKey &&
         (e.key === "S" || e.key === "s" || e.key === "3" || e.key === "4" || e.key === "5")
       ) {
-        triggerProtectionShield("Screen capture restricted on protected artwork.");
+        triggerProtectionShield("Screen capture scrambled on protected artwork.");
       }
 
       // Print (Ctrl + P / Cmd + P)
       if ((e.metaKey || e.ctrlKey) && (e.key === "P" || e.key === "p")) {
         e.preventDefault();
-        showWarningToast("Printing is restricted to preserve artwork copyright.");
+        triggerProtectionShield("Printing & PDF export scrambled by ONWA DRM.");
       }
 
       // Save Webpage (Ctrl + S / Cmd + S)
@@ -74,15 +93,15 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
         ((e.metaKey || e.ctrlKey) && (e.key === "U" || e.key === "u")) ||
         ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "C" || e.key === "c"))
       ) {
-        setIsShieldActive(true);
-        setTimeout(() => setIsShieldActive(false), 1500);
+        triggerProtectionShield("DevTools inspection obfuscated by DRM.");
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === "PrintScreen" || e.code === "PrintScreen") {
+        triggerProtectionShield("Screenshot blocked & blurred by ONWA Museum DRM.");
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText("Protected Artwork — ONWA Digital Museum").catch(() => {});
+          navigator.clipboard.writeText("UNAUTHORIZED SCREENSHOT ATTEMPT BLOCKED — ONWA DIGITAL MUSEUM COPYRIGHT").catch(() => {});
         }
       }
     };
@@ -90,7 +109,6 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
     // 2. Global Right-Click & Context Menu Prevention (Mobile & Desktop)
     const handleContextMenu = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
-      // Allow context menu only inside editable form elements
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
         return;
       }
@@ -122,7 +140,7 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
       // Intercept Android 3-finger screenshot gesture
       if (e.touches && e.touches.length >= 3) {
         e.preventDefault();
-        triggerProtectionShield("Multi-finger capture gesture blocked by ONWA DRM.");
+        triggerProtectionShield("Multi-finger capture gesture scrambled by ONWA DRM.");
         return;
       }
 
@@ -131,7 +149,7 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
       if (target && (target.tagName === "IMG" || target.closest(".protected-artwork-container") || target.closest("main"))) {
         touchTimerRef.current = setTimeout(() => {
           showWarningToast("Image saving and long-press menus are disabled on mobile devices.");
-        }, 450);
+        }, 400);
       }
     };
 
@@ -143,7 +161,6 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
     };
 
     const handleTouchMove = () => {
-      // User is scrolling normally, clear long-press timer
       if (touchTimerRef.current) {
         clearTimeout(touchTimerRef.current);
         touchTimerRef.current = null;
@@ -164,7 +181,7 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
       if (document.hidden) {
         setIsShieldActive(true);
       } else {
-        setTimeout(() => setIsShieldActive(false), 300);
+        setTimeout(() => setIsShieldActive(false), 350);
       }
     };
 
@@ -174,7 +191,7 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
     };
 
     const handleWindowFocus = () => {
-      setTimeout(() => setIsShieldActive(false), 200);
+      setTimeout(() => setIsShieldActive(false), 250);
     };
 
     // Attach listeners
@@ -222,6 +239,9 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
       if (touchTimerRef.current) {
         clearTimeout(touchTimerRef.current);
       }
+      if (shieldTimeoutRef.current) {
+        clearTimeout(shieldTimeoutRef.current);
+      }
     };
   }, [triggerProtectionShield, showWarningToast]);
 
@@ -245,21 +265,35 @@ export function ArtworkProtectionProvider({ children }: { children: React.ReactN
         </div>
       )}
 
-      {/* App Switcher & Screen Capture Obfuscation Curtain */}
+      {/* App Switcher & Screen Capture Forensic Scramble Curtain */}
       {isShieldActive && (
         <div
-          className="fixed inset-0 z-[9998] bg-black/98 backdrop-blur-3xl flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto"
+          className="fixed inset-0 z-[9998] bg-black/95 backdrop-blur-[60px] flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto overflow-hidden animate-in fade-in duration-75"
           aria-hidden="true"
         >
-          <div className="w-14 h-14 rounded-full border border-primary/40 flex items-center justify-center mb-4 bg-primary/5">
-            <span className="text-2xl">🛡️</span>
+          {/* Dense forensic anti-piracy repeating watermark grid */}
+          <div className="absolute inset-0 pointer-events-none opacity-20 flex flex-col justify-around rotate-[-15deg] scale-125 select-none overflow-hidden">
+            {Array.from({ length: 14 }).map((_, i) => (
+              <div key={i} className="whitespace-nowrap font-mono text-[11px] tracking-[0.35em] text-white/90 uppercase">
+                ONWA DIGITAL MUSEUM • ILLEGAL PIRATED CAPTURE • UNAUTHORIZED REPRODUCTION FORBIDDEN • COPYRIGHT PROTECTED
+              </div>
+            ))}
           </div>
-          <h3 className="museum-heading text-headline-sm text-primary mb-2">
-            Protected Cultural Masterwork
-          </h3>
-          <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
-            Screenshots, screen recording, and unauthorized image saving are restricted by ONWA Museum DRM to preserve artist copyright and sacred African heritage.
-          </p>
+
+          <div className="relative z-10 flex flex-col items-center max-w-md bg-black/60 p-8 rounded-2xl border border-primary/30 backdrop-blur-2xl shadow-2xl">
+            <div className="w-16 h-16 rounded-full border border-primary/50 flex items-center justify-center mb-5 bg-black/80 shadow-2xl backdrop-blur-md">
+              <span className="text-3xl">🛡️</span>
+            </div>
+            <h3 className="museum-heading text-headline-sm text-primary mb-2 tracking-wider">
+              Protected Cultural Masterwork
+            </h3>
+            <p className="text-xs text-muted-foreground/90 leading-relaxed font-sans mb-4">
+              Screenshots, screen recording, and unauthorized asset extraction are actively scrambled and blurred by ONWA Museum DRM to prevent piracy and preserve sacred African heritage.
+            </p>
+            <div className="px-3.5 py-1.5 border border-primary/30 rounded text-[9px] font-mono tracking-widest text-primary/90 uppercase bg-primary/10">
+              Forensic Anti-Piracy Shield Active
+            </div>
+          </div>
         </div>
       )}
     </ArtworkProtectionContext.Provider>

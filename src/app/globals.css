@@ -250,12 +250,32 @@ img, svg, canvas, picture, video {
 
 /* 3. Screen Capture / Recording Shield Filter */
 .artwork-capture-shielded {
-  filter: blur(60px) brightness(0.02) !important;
-  opacity: 0.05 !important;
-  transition: filter 0.1s ease-in-out, opacity 0.1s ease-in-out;
+  filter: blur(80px) brightness(0.02) contrast(30%) saturate(0%) !important;
+  opacity: 0.02 !important;
+  transform: scale(0.96) !important;
+  transition: filter 0.05s ease-in-out, opacity 0.05s ease-in-out !important;
 }
 
-/* 4. Complete Print / PDF Export Block */
+/* 4. Global Anti-Screenshot Scramble & Degradation (Applied to <html> when capture is detected) */
+.drm-capture-scramble {
+  filter: blur(50px) brightness(0.18) contrast(25%) grayscale(90%) !important;
+  transition: filter 0.05s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.drm-capture-scramble img,
+.drm-capture-scramble picture,
+.drm-capture-scramble canvas,
+.drm-capture-scramble video,
+.drm-capture-scramble svg,
+.drm-capture-scramble .protected-artwork-container {
+  filter: blur(90px) brightness(0.01) contrast(10%) !important;
+  opacity: 0.01 !important;
+  transform: scale(0.92) !important;
+}
+
+/* 5. Complete Print / PDF Export Block */
 @media print {
   html, body {
     display: none !important;
