@@ -3,6 +3,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ArtworkProtectionProvider } from "@/components/providers/ArtworkProtectionProvider";
+import { NetworkStatusProvider } from "@/components/providers/NetworkStatusProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
@@ -118,9 +119,11 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ArtworkProtectionProvider>
-              <Header />
-              <div className="min-h-screen flex flex-col">{children}</div>
-              <Footer />
+              <NetworkStatusProvider>
+                <Header />
+                <div className="min-h-screen flex flex-col">{children}</div>
+                <Footer />
+              </NetworkStatusProvider>
             </ArtworkProtectionProvider>
           </ThemeProvider>
           <GoogleAnalytics />
