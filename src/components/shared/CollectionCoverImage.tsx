@@ -27,11 +27,16 @@ export function CollectionCoverImage({ src, alt, className = "" }: CollectionCov
   }
 
   return (
-    <img
-      src={normalizedSrc}
-      alt={alt}
-      className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${className}`}
-      onError={() => setHasError(true)}
-    />
+    <div className="relative w-full h-full overflow-hidden select-none protected-artwork-container">
+      <img
+        src={normalizedSrc}
+        alt={alt}
+        draggable={false}
+        className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none select-none ${className}`}
+        onError={() => setHasError(true)}
+      />
+      {/* Transparent anti-save overlay */}
+      <div className="absolute inset-0 z-10 bg-transparent cursor-pointer" aria-hidden="true" />
+    </div>
   );
 }

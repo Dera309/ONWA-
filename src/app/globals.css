@@ -200,13 +200,43 @@ img {
 }
 
 /* ==========================================================================
-   ONWA MUSEUM DRM & ARTWORK PROTECTION
+   ONWA MUSEUM DRM & ARTWORK PROTECTION (MOBILE & DESKTOP)
    ========================================================================== */
+
+/* 1. Global Touch-Callout & User-Select restrictions */
+html, body {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Allow text selection only in form inputs/textareas and explicitly marked readable text */
+input, textarea, [contenteditable="true"], .allow-select {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* 2. Absolute protection on all images, svgs, canvases, and media */
+img, svg, canvas, picture, video {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+  user-drag: none !important;
+}
+
 .protected-artwork-container {
   position: relative;
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;
   user-select: none !important;
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
 .protected-artwork-image {
@@ -214,23 +244,26 @@ img {
   -webkit-user-select: none !important;
   user-select: none !important;
   -webkit-user-drag: none !important;
+  user-drag: none !important;
   pointer-events: none !important;
 }
 
+/* 3. Screen Capture / Recording Shield Filter */
 .artwork-capture-shielded {
-  filter: blur(50px) brightness(0.05) !important;
-  transition: filter 0.15s ease-in-out;
+  filter: blur(60px) brightness(0.02) !important;
+  opacity: 0.05 !important;
+  transition: filter 0.1s ease-in-out, opacity 0.1s ease-in-out;
 }
 
-/* Prevent browser printing / Save to PDF of artwork & pages */
+/* 4. Complete Print / PDF Export Block */
 @media print {
-  body {
+  html, body {
     display: none !important;
     visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
-  .protected-artwork-image,
-  .protected-artwork-container,
-  img {
+  * {
     display: none !important;
     visibility: hidden !important;
   }
